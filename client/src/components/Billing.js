@@ -29,13 +29,12 @@ const Billing = () => {
 
   useEffect(() => {
     const now = new Date();
-    const currentMonth = now.getMonth() + 1;
+    const currentMonth = now.getMonth() + 1; // Month is 0-indexed
     const currentYear = now.getFullYear();
     setMonth(currentMonth);
     setYear(currentYear);
     fetchBilling(currentMonth, currentYear);
   }, []);
-
   return (
     <div className="container py-5" style={{ background: 'linear-gradient(to right, #e0f7fa, #ffffff)' }}>
       <div className="text-center mb-5">
@@ -72,49 +71,52 @@ const Billing = () => {
       </form>
 
       <div className="row">
-        {bills.map((b, idx) => (
-          <div key={idx} className="col-md-6 col-lg-4 mb-4">
-            <div className="card shadow-sm border-0 h-100">
-              <div className="card-body">
-                <h5 className="card-title text-info">{b.customer.name}</h5>
-                <p className="card-text mb-2">
-                  <strong>Bottles:</strong> {b.totalBottles}  
-                </p>
-                <p className="card-text mb-3">
-                  <strong>Amount:</strong> ₹{b.amount}
-                </p>
-                <div className="d-flex gap-2">
-                  <a
-                    href={b.whatsappLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn btn-success btn-sm w-100"
-                  >
-                    WhatsApp Bill
-                  </a>
-                  <button
-                    className="btn btn-primary btn-sm w-100"
-                    onClick={async () => {
-                      const smsMessage = `Hello ${b.customer.name}, your total delivery this month is ${b.totalBottles} bottles. Total Bill: ₹${b.amount}.`;
-                      try {
-                        await axios.post('http://localhost:5000/api/sms', {
-                          phone: b.customer.phone,
-                          message: smsMessage,
-                        });
-                        alert(`SMS sent to ${b.customer.name}`);
-                      } catch {
-                        alert(`Failed to send SMS to ${b.customer.name}`);
-                      }
-                    }}
-                  >
-                    SMS Bill
-                  </button>
+        {bills
+          .filter((b) => b.amount > 0)  // ✅ Only show customers with bill > 0
+          .map((b, idx) => (
+            <div key={idx} className="col-md-6 col-lg-4 mb-4">
+              <div className="card shadow-sm border-0 h-100">
+                <div className="card-body">
+                  <h5 className="card-title text-info">{b.customer.name}</h5>
+                  <p className="card-text mb-2">
+                    <strong>Bottles:</strong> {b.totalBottles}
+                  </p>
+                  <p className="card-text mb-3">
+                    <strong>Amount:</strong> ₹{b.amount}
+                  </p>
+                  <div className="d-flex gap-2">
+                    <a
+                      href={b.whatsappLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn btn-success btn-sm w-100"
+                    >
+                      WhatsApp Bill
+                    </a>
+                    {/* <button
+                      className="btn btn-primary btn-sm w-100"
+                      onClick={async () => {
+                        const smsMessage = `Hello ${b.customer.name}, your total delivery this month is ${b.totalBottles} bottles. Total Bill: ₹${b.amount}.`;
+                        try {
+                          await axios.post('http://localhost:5000/api/sms', {
+                            phone: b.customer.phone,
+                            message: smsMessage,
+                          });
+                          alert(`SMS sent to ${b.customer.name}`);
+                        } catch {
+                          alert(`Failed to send SMS to ${b.customer.name}`);
+                        }
+                      }}
+                    >
+                      SMS Bill
+                    </button> */}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
+
 
       {/* Monthly Summary */}
       {bills.length > 0 && (

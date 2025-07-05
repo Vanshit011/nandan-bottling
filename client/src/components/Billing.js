@@ -35,6 +35,7 @@ const Billing = () => {
     setYear(currentYear);
     fetchBilling(currentMonth, currentYear);
   }, []);
+
   return (
     <div className="container py-5" style={{ background: 'linear-gradient(to right, #e0f7fa, #ffffff)' }}>
       <div className="text-center mb-5">
@@ -93,30 +94,12 @@ const Billing = () => {
                     >
                       WhatsApp Bill
                     </a>
-                    {/* <button
-                      className="btn btn-primary btn-sm w-100"
-                      onClick={async () => {
-                        const smsMessage = `Hello ${b.customer.name}, your total delivery this month is ${b.totalBottles} bottles. Total Bill: ₹${b.amount}.`;
-                        try {
-                          await axios.post('http://localhost:5000/api/sms', {
-                            phone: b.customer.phone,
-                            message: smsMessage,
-                          });
-                          alert(`SMS sent to ${b.customer.name}`);
-                        } catch {
-                          alert(`Failed to send SMS to ${b.customer.name}`);
-                        }
-                      }}
-                    >
-                      SMS Bill
-                    </button> */}
                   </div>
                 </div>
               </div>
             </div>
           ))}
       </div>
-
 
       {/* Monthly Summary */}
       {bills.length > 0 && (

@@ -15,7 +15,7 @@ const Dashboard = () => {
   return (
     <div className="container py-4">
       <div className="text-center mb-5">
-        <h2 className="fw-bold text-primary">💧 Nanadan Bottling Admin Dashboard</h2>
+        <h2 className="fw-bold text-primary">💧 Nandan Bottling Admin Dashboard</h2>
         <p className="text-muted">
           Manage Customers, Deliveries & Monthly Billing with ease.
         </p>

@@ -9,7 +9,7 @@ const customerRoutes = require("./routes/customerRoutes");
 const deliveryRoutes = require("./routes/deliveryRoutes");
 const billingRoutes = require("./routes/billingRoutes");
 // const whatsapp = require("./routes/whatsapp")
-const smsRoutes = require("./routes/smsRoutes");
+// const smsRoutes = require("./routes/smsRoutes");
 
 const app = express();
 app.use(cors());
@@ -28,6 +28,6 @@ app.use("/api/customers", customerRoutes);
 app.use("/api/deliveries", deliveryRoutes);
 app.use("/api/billing", billingRoutes);
 // app.use("/api/send-whatsapp", require("./routes/whatsapp"));  // ✅ WhatsApp Route
-app.use("/api/sms", smsRoutes);
+// app.use("/api/sms", smsRoutes);
 
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

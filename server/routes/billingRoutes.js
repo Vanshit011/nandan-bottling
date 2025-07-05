@@ -1,7 +1,6 @@
 const express = require("express");
 const Customer = require("../models/Customer");
 const Delivery = require("../models/Delivery");
-const sendSms = require("../utils/smsSender"); // ✅ Import SMS Utility
 
 const router = express.Router();
 
@@ -24,20 +23,20 @@ router.get("/", async (req, res) => {
     const totalBottles = deliveries.reduce((sum, d) => sum + d.bottles, 0);
     const amount = totalBottles * customer.rate;
 
-    grandTotalBottles += totalBottles;
-    grandTotalAmount += amount;
+    // ✅ Skip customers with 0 billing
+    if (amount > 0) {
+      grandTotalBottles += totalBottles;
+      grandTotalAmount += amount;
 
-    const message = `Hello ${customer.name}, your total bill this month: ₹${amount} (${totalBottles} Bottles). Please pay soon.`;
+      const message = `Hello ${customer.name}, this is a reminder from Nandan Bottling. Your total delivery for this month is ${totalBottles} bottles. Total bill: ₹${amount}. Kindly complete the payment at your earliest convenience. Thank you!`;
 
-    // ✅ Auto-send SMS
-    await sendSms(customer.phone, message);
-
-    bills.push({
-      customer,
-      totalBottles,
-      amount,
-      whatsappLink: `https://wa.me/91${customer.phone}?text=${encodeURIComponent(message)}`,
-    });
+      bills.push({
+        customer,
+        totalBottles,
+        amount,
+        whatsappLink: `https://wa.me/91${customer.phone}?text=${encodeURIComponent(message)}`,
+      });
+    }
   }
 
   res.json({ bills, grandTotalBottles, grandTotalAmount });

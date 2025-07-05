@@ -7,7 +7,7 @@ const CustomerList = () => {
   const [form, setForm] = useState({ name: '', phone: '', rate: '' });
 
   const fetchCustomers = () => {
-    axios.get('http://localhost:5000/api/customers')
+    axios.get('https://api-nandan-node.onrender.com/api/customers')
       .then((res) => setCustomers(res.data))
       .catch((err) => console.error('Fetch Error:', err));
   };
@@ -19,7 +19,7 @@ const CustomerList = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/customers/${id}`);
+        await axios.delete(`https://api-nandan-node.onrender.com/api/customers/${id}`);
         alert('Customer Deleted');
         fetchCustomers();
       } catch (err) {
@@ -36,7 +36,7 @@ const CustomerList = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/customers/${editCustomer._id}`, form);
+      await axios.put(`https://api-nandan-node.onrender.com/api/customers/${editCustomer._id}`, form);
       alert('Customer Updated');
       setEditCustomer(null);
       fetchCustomers();

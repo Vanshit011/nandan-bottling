@@ -7,7 +7,7 @@ const AddCustomer = () => {
  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/customers', form);
+      await axios.post('https://api-nandan-node.onrender.com/api/customers', form);
       alert('✅ Customer Added Successfully!');
       setForm({ name: '', phone: '', rate: '' });  // Reset form
     } catch (err) {

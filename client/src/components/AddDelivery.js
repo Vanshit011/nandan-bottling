@@ -7,13 +7,13 @@ const AddDelivery = () => {
   const [form, setForm] = useState({ customerId: '', date: today, bottles: '' });
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/customers').then((res) => setCustomers(res.data));
+    axios.get('https://api-nandan-node.onrender.com/api/customers').then((res) => setCustomers(res.data));
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/deliveries', form);
+      await axios.post('https://api-nandan-node.onrender.com/api/deliveries', form);
       alert('✅ Delivery Added Successfully!');
       setForm({ customerId: '', date: today, bottles: '' });
     } catch (err) {

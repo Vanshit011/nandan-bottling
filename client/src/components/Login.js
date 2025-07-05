@@ -24,7 +24,7 @@ const Login = ({ onLogin }) => {
       localStorage.removeItem('token');
 
       // ✅ Login Request
-      const res = await axios.post('http://localhost:5000/api/admin/login', { email, password });
+      const res = await axios.post('https://api-nandan-node.onrender.com/api/admin/login', { email, password });
 
       // ✅ Save New Token
       localStorage.setItem('token', res.data.token);

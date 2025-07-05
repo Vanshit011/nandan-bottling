@@ -10,7 +10,7 @@ const Billing = () => {
   const fetchBilling = async (monthValue, yearValue) => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/billing?month=${monthValue}&year=${yearValue}`
+        `https://api-nandan-node.onrender.com/api/billing?month=${monthValue}&year=${yearValue}`
       );
       setBills(res.data.bills);
       setTotals({

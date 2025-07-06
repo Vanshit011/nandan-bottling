@@ -1,25 +1,36 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AddDelivery = () => {
   const [customers, setCustomers] = useState([]);
   const today = new Date().toISOString().split('T')[0];
   const [form, setForm] = useState({ customerId: '', date: today, bottles: '' });
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
   useEffect(() => {
-    axios.get('https://api-nandan-node.onrender.com/api/customers').then((res) => setCustomers(res.data));
+    axios.get('https://api-nandan-node.onrender.com/api/customers')
+      .then((res) => setCustomers(res.data))
+      .catch((err) => console.error('Customer Fetch Error:', err));
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.post('https://api-nandan-node.onrender.com/api/deliveries', form);
-      alert('✅ Delivery Added Successfully!');
+      setToast({ show: true, message: '✅ Delivery Added Successfully!', type: 'success' });
       setForm({ customerId: '', date: today, bottles: '' });
     } catch (err) {
-      alert('❌ Failed to Add Delivery');
+      setToast({ show: true, message: '❌ Failed to Add Delivery', type: 'danger' });
     }
   };
+
+  useEffect(() => {
+    if (toast.show) {
+      const timer = setTimeout(() => setToast({ show: false, message: '' }), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   return (
     <div className="container py-5" style={{ background: 'linear-gradient(to right, #e0f2f1, #ffffff)' }}>
@@ -68,6 +79,24 @@ const AddDelivery = () => {
           </form>
         </div>
       </div>
+
+      {/* ✅ Toast Notification */}
+      {toast.show && (
+        <div
+          className={`toast show position-fixed bottom-0 end-0 m-3 border-0 text-white bg-${toast.type}`}
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+          style={{ zIndex: 9999 }}
+        >
+           <div className="toast-header bg-success text-white">
+            <strong className="me-auto">Notification</strong>
+          </div>
+          <div className="toast-body">
+            {toast.message}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const CustomerList = () => {
   const [customers, setCustomers] = useState([]);
-  const [editCustomer, setEditCustomer] = useState(null); // For editing
+  const [editCustomer, setEditCustomer] = useState(null);
   const [form, setForm] = useState({ name: '', phone: '', rate: '' });
+  const [toast, setToast] = useState({ show: false, message: '' });
 
   const fetchCustomers = () => {
     axios.get('https://api-nandan-node.onrender.com/api/customers')
@@ -20,10 +22,10 @@ const CustomerList = () => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
         await axios.delete(`https://api-nandan-node.onrender.com/api/customers/${id}`);
-        alert('Customer Deleted');
+        setToast({ show: true, message: 'Customer Deleted Successfully!' });
         fetchCustomers();
       } catch (err) {
-        alert('Failed to Delete Customer');
+        setToast({ show: true, message: '❌ Failed to Delete Customer' });
       }
     }
   };
@@ -37,13 +39,20 @@ const CustomerList = () => {
     e.preventDefault();
     try {
       await axios.put(`https://api-nandan-node.onrender.com/api/customers/${editCustomer._id}`, form);
-      alert('Customer Updated');
       setEditCustomer(null);
+      setToast({ show: true, message: 'Customer Updated Successfully!' });
       fetchCustomers();
     } catch (err) {
-      alert('Failed to Update Customer');
+      setToast({ show: true, message: '❌ Failed to Update Customer' });
     }
   };
+
+  useEffect(() => {
+    if (toast.show) {
+      const timer = setTimeout(() => setToast({ show: false, message: '' }), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   return (
     <div>
@@ -74,7 +83,7 @@ const CustomerList = () => {
         </tbody>
       </table>
 
-      {/* ✅ Bootstrap Modal for Edit */}
+      {/* ✅ Modal for Edit */}
       {editCustomer && (
         <div className="modal show fade d-block" tabIndex="-1" role="dialog">
           <div className="modal-dialog" role="document">
@@ -122,6 +131,24 @@ const CustomerList = () => {
                 </div>
               </form>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Toast */}
+      {toast.show && (
+        <div
+          className="toast show position-fixed bottom-0 end-0 m-3"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+          style={{ zIndex: 9999 }}
+        >
+          <div className="toast-header bg-success text-white">
+            <strong className="me-auto">Notification</strong>
+          </div>
+          <div className="toast-body">
+            {toast.message}
           </div>
         </div>
       )}

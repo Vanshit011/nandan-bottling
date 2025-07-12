@@ -4,24 +4,63 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AddDelivery = () => {
   const [customers, setCustomers] = useState([]);
+  const [deliveries, setDeliveries] = useState([]);
   const today = new Date().toISOString().split('T')[0];
-  const [form, setForm] = useState({ customerId: '', date: today, bottles: '' });
+  const [form, setForm] = useState({ customerId: '', date: today, bottles: '', status: 'Unpaid' });
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
   useEffect(() => {
-    axios.get('https://api-nandan-node.onrender.com/api/customers')
-      .then((res) => setCustomers(res.data))
-      .catch((err) => console.error('Customer Fetch Error:', err));
+    fetchCustomers();
+    fetchDeliveries();
   }, []);
+
+  const fetchCustomers = async () => {
+    try {
+      const res = await axios.get('https://api-nandan-node.onrender.com/api/customers');
+      setCustomers(res.data);
+    } catch (err) {
+      console.error('Customer Fetch Error:', err);
+    }
+  };
+
+  const fetchDeliveries = async () => {
+    try {
+      const res = await axios.get('https://api-nandan-node.onrender.com/api/deliveries');
+      setDeliveries(res.data);
+    } catch (err) {
+      console.error('Delivery Fetch Error:', err);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.post('https://api-nandan-node.onrender.com/api/deliveries', form);
       setToast({ show: true, message: '✅ Delivery Added Successfully!', type: 'success' });
-      setForm({ customerId: '', date: today, bottles: '' });
+      setForm({ customerId: '', date: today, bottles: '', status: 'Unpaid' });
+      fetchDeliveries();
     } catch (err) {
       setToast({ show: true, message: '❌ Failed to Add Delivery', type: 'danger' });
+    }
+  };
+
+  const deleteDelivery = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this delivery?')) return;
+    try {
+      await axios.delete(`https://api-nandan-node.onrender.com/api/deliveries/${id}`);
+      fetchDeliveries();
+    } catch (err) {
+      alert('Failed to delete delivery');
+    }
+  };
+
+  const toggleStatus = async (id, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'Paid' ? 'Unpaid' : 'Paid';
+      await axios.put(`https://api-nandan-node.onrender.com/api/deliveries/${id}`, { status: newStatus });
+      fetchDeliveries();
+    } catch (err) {
+      alert('Failed to update status');
     }
   };
 
@@ -80,7 +119,46 @@ const AddDelivery = () => {
         </div>
       </div>
 
-      {/* ✅ Toast Notification */}
+      <hr className="my-4" />
+
+      <div className="table-responsive bg-white p-4 rounded shadow">
+        <h5 className="mb-3 fw-bold">📋 All Deliveries</h5>
+        <table className="table table-bordered table-hover">
+          <thead className="table-primary">
+            <tr>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Bottles</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {deliveries.map((d) => (
+              <tr key={d._id}>
+                <td>{d.name}</td>
+                <td>{new Date(d.date).toLocaleDateString()}</td>
+                <td>{d.bottles}</td>
+                <td>
+                  <span
+                    className={`badge bg-${d.status === 'Paid' ? 'success' : 'warning'}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => toggleStatus(d._id, d.status)}
+                  >
+                    {d.status}
+                  </span>
+                </td>
+                <td>
+                  <button className="btn btn-danger btn-sm" onClick={() => deleteDelivery(d._id)}>
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       {toast.show && (
         <div
           className={`toast show position-fixed bottom-0 end-0 m-3 border-0 text-white bg-${toast.type}`}
@@ -89,7 +167,7 @@ const AddDelivery = () => {
           aria-atomic="true"
           style={{ zIndex: 9999 }}
         >
-           <div className="toast-header bg-success text-white">
+          <div className="toast-header bg-success text-white">
             <strong className="me-auto">Notification</strong>
           </div>
           <div className="toast-body">

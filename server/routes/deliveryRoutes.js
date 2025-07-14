@@ -6,17 +6,17 @@ const router = express.Router();
 // ✅ POST: Create a new delivery
 router.post("/", async (req, res) => {
   try {
-    const { name, bottles, date } = req.body;
+    const { customerId, bottles, date, status } = req.body;
 
-    if (!name || !bottles) {
-      return res.status(400).json({ message: "Name and bottles are required" });
+    if (!customerId || !bottles) {
+      return res.status(400).json({ message: "Customer ID and bottles are required" });
     }
 
     const delivery = new Delivery({
-      name,
+      customerId,
       bottles,
       date: date ? new Date(date) : undefined,
-      status: "Unpaid" // Default status
+      status: status || "Unpaid",
     });
 
     await delivery.save();
@@ -30,6 +30,7 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
 
 // ✅ GET: All deliveries
 router.get("/", async (req, res) => {

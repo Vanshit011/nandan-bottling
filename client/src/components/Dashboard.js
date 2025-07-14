@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import AddCustomer from './AddCustomer';
 import CustomerList from './CustomerList';
-import AddDelivery from './AddDelivery';
-import Delivery from './ViewDeliveries'; // ✅ View All Deliveries
-import Billing from './Billing'; // Assuming you already have this
+// import AddDelivery from './AddDelivery';
+// import Delivery from './ViewDeliveries'; // ✅ View All Deliveries
+// import Billing from './Billing'; // Assuming you already have this
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Dashboard.css';
 
@@ -39,7 +39,7 @@ const Dashboard = () => {
         >
           👥 View Customers
         </button>
-        <button
+        {/* <button
           className={`btn btn-outline-success shadow-sm ${page === 'delivery' ? 'active-btn' : ''}`}
           onClick={() => setPage('delivery')}
         >
@@ -50,13 +50,13 @@ const Dashboard = () => {
           onClick={() => setPage('viewDeliveries')}
         >
           📦 View Deliveries
-        </button>
-        <button
+        </button> */}
+        {/* <button
           className={`btn btn-outline-warning shadow-sm ${page === 'billing' ? 'active-btn' : ''}`}
           onClick={() => setPage('billing')}
         >
           💳 Billing
-        </button>
+        </button> */}
         <button className="btn btn-danger shadow-sm" onClick={handleLogout}>
           🚪 Logout
         </button>
@@ -65,9 +65,9 @@ const Dashboard = () => {
       <div className="p-3 border rounded bg-light shadow animated-box">
         {page === 'customers' && <AddCustomer />}
         {page === 'list' && <CustomerList />}
-        {page === 'delivery' && <AddDelivery />}
-        {page === 'viewDeliveries' && <Delivery />} {/* ✅ This renders ViewDeliveries */}
-        {page === 'billing' && <Billing />}
+        {/* {page === 'delivery' && <AddDelivery />} */}
+        {/* {page === 'viewDeliveries' && <Delivery />} ✅ This renders ViewDeliveries */}
+        {/* {page === 'billing' && <Billing />} */}
       </div>
     </div>
   );

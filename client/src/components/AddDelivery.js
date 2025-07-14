@@ -5,7 +5,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const AddDelivery = () => {
   const today = new Date().toISOString().split('T')[0];
   const [customers, setCustomers] = useState([]);
-  const [form, setForm] = useState({ customerId: '', date: today, bottles: '', status: 'Unpaid' });
+  const [form, setForm] = useState({
+    customerId: '',
+    date: today,
+    bottles: '',
+    status: 'Unpaid', // default status
+  });
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
   useEffect(() => {
@@ -23,9 +28,14 @@ const AddDelivery = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('https://api-nandan-node.onrender.com/api/deliveries', { ...form, status: 'Unpaid' });
+      await axios.post('https://api-nandan-node.onrender.com/api/deliveries', form);
       setToast({ show: true, message: '✅ Delivery Added!', type: 'success' });
-      setForm({ customerId: '', date: today, bottles: '', status: 'Unpaid' });
+      setForm({
+        customerId: '',
+        date: today,
+        bottles: '',
+        status: 'Unpaid', // reset to default
+      });
     } catch {
       setToast({ show: true, message: '❌ Failed to Add', type: 'danger' });
     }
@@ -58,8 +68,9 @@ const AddDelivery = () => {
                 ))}
               </select>
             </div>
+
             <div className="mb-3">
-              <label className="form-label">Date</label>
+              <label className="form-label">Delivery Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -68,8 +79,9 @@ const AddDelivery = () => {
                 required
               />
             </div>
+
             <div className="mb-3">
-              <label className="form-label">Bottles</label>
+              <label className="form-label">Number of Bottles</label>
               <input
                 type="number"
                 className="form-control"
@@ -78,13 +90,29 @@ const AddDelivery = () => {
                 required
               />
             </div>
+
+            <div className="mb-3">
+              <label className="form-label">Status</label>
+              <select
+                className="form-select"
+                value={form.status}
+                onChange={(e) => setForm({ ...form, status: e.target.value })}
+              >
+                <option value="Unpaid">Unpaid</option>
+                <option value="Paid">Paid</option>
+              </select>
+            </div>
+
             <button className="btn btn-success w-100">Add Delivery</button>
           </form>
         </div>
       </div>
 
       {toast.show && (
-        <div className={`toast show position-fixed bottom-0 end-0 m-3 text-white bg-${toast.type}`} style={{ zIndex: 9999 }}>
+        <div
+          className={`toast show position-fixed bottom-0 end-0 m-3 text-white bg-${toast.type}`}
+          style={{ zIndex: 9999 }}
+        >
           <div className="toast-header bg-dark text-white">
             <strong className="me-auto">Alert</strong>
           </div>

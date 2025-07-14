@@ -1,23 +1,24 @@
 const mongoose = require("mongoose");
 
 const deliverySchema = new mongoose.Schema({
-  name: {
+  customerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Customer',
+    required: true
+  },
+  date: {
     type: String,
-    required: true,
+    required: true
   },
   bottles: {
     type: Number,
-    required: true,
-  },
-  date: {
-    type: Date,
-    default: Date.now, // Defaults to current date
+    required: true
   },
   status: {
     type: String,
-    enum: ["Paid", "Unpaid"],
-    default: "Unpaid", // Default to Unpaid
-  },
+    enum: ['Paid', 'Unpaid'],
+    default: 'Unpaid'
+  }
 });
 
 module.exports = mongoose.model("Delivery", deliverySchema);

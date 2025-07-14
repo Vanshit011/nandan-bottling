@@ -2,9 +2,10 @@ import { useState } from 'react';
 import AddCustomer from './AddCustomer';
 import CustomerList from './CustomerList';
 import AddDelivery from './AddDelivery';
-import Billing from './Billing';
+import Delivery from './ViewDeliveries'; // ✅ View All Deliveries
+import Billing from './Billing'; // Assuming you already have this
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/Dashboard.css'; // ✅ Custom Animations
+import '../styles/Dashboard.css';
 
 const Dashboard = () => {
   const [page, setPage] = useState('customers');
@@ -18,7 +19,7 @@ const Dashboard = () => {
     <div className="container py-4">
       <div className="text-center mb-5">
         <h2 className="fw-bold text-primary animate-fade-in">
-          💧 Uma Vanshi Drinking water Admin Dashboard
+          💧 Uma Vanshi Drinking Water Admin Dashboard
         </h2>
         <p className="text-muted animate-slide-up">
           Manage Customers, Deliveries & Monthly Billing Easily.
@@ -45,6 +46,12 @@ const Dashboard = () => {
           🚚 Add Delivery
         </button>
         <button
+          className={`btn btn-outline-success shadow-sm ${page === 'viewDeliveries' ? 'active-btn' : ''}`}
+          onClick={() => setPage('viewDeliveries')}
+        >
+          📦 View Deliveries
+        </button>
+        <button
           className={`btn btn-outline-warning shadow-sm ${page === 'billing' ? 'active-btn' : ''}`}
           onClick={() => setPage('billing')}
         >
@@ -59,6 +66,7 @@ const Dashboard = () => {
         {page === 'customers' && <AddCustomer />}
         {page === 'list' && <CustomerList />}
         {page === 'delivery' && <AddDelivery />}
+        {page === 'viewDeliveries' && <Delivery />} {/* ✅ This renders ViewDeliveries */}
         {page === 'billing' && <Billing />}
       </div>
     </div>

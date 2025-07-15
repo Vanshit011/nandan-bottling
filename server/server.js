@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 5000;
 
 const adminRoutes = require("./routes/adminRoutes");
 const customerRoutes = require("./routes/customerRoutes");
+const deliveryRoutes = require('./routes/deliveryRoutes'); // ✅ Add this
 // const deliveryRoutes = require("./routes/deliveryRoutes");
 // const billingRoutes = require("./routes/billingRoutes");
 // const whatsapp = require("./routes/whatsapp")
@@ -25,6 +26,7 @@ mongoose
 
 app.use("/api/admin", adminRoutes);
 app.use("/api/customers", customerRoutes);
+app.use('/api/deliveries', deliveryRoutes); // ✅ Use this
 // app.use("/api/deliveries", deliveryRoutes);
 // app.use("/api/billing", billingRoutes);
 // app.use("/api/send-whatsapp", require("./routes/whatsapp"));  // ✅ WhatsApp Route

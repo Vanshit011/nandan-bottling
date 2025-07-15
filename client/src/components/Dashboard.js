@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import AddCustomer from './AddCustomer';
 import CustomerList from './CustomerList';
+import AddDelivery from './AddDelivery';
+import ViewDeliveries from './ViewDeliveries';
 // import AddDelivery from './AddDelivery';
 // import Delivery from './ViewDeliveries'; // ✅ View All Deliveries
 // import Billing from './Billing'; // Assuming you already have this
@@ -39,6 +41,18 @@ const Dashboard = () => {
         >
           👥 View Customers
         </button>
+        <button
+          className={`btn btn-outline-success shadow-sm ${page === 'delivery' ? 'active-btn' : ''}`}
+          onClick={() => setPage('delivery')}
+        >
+          🚚 Add Delivery
+        </button>
+        <button
+          className={`btn btn-outline-info shadow-sm ${page === 'viewDeliveries' ? 'active-btn' : ''}`}
+          onClick={() => setPage('viewDeliveries')}
+        >
+          📦 View Deliveries
+        </button>
         {/* <button
           className={`btn btn-outline-success shadow-sm ${page === 'delivery' ? 'active-btn' : ''}`}
           onClick={() => setPage('delivery')}
@@ -65,6 +79,8 @@ const Dashboard = () => {
       <div className="p-3 border rounded bg-light shadow animated-box">
         {page === 'customers' && <AddCustomer />}
         {page === 'list' && <CustomerList />}
+        {page === 'delivery' && <AddDelivery />}
+        {page === 'viewDeliveries' && <ViewDeliveries />}
         {/* {page === 'delivery' && <AddDelivery />} */}
         {/* {page === 'viewDeliveries' && <Delivery />} ✅ This renders ViewDeliveries */}
         {/* {page === 'billing' && <Billing />} */}

@@ -37,6 +37,34 @@ const ViewDeliveries = () => {
     setFilteredDeliveries(filtered);
   };
 
+  const getSummary = () => {
+    const ratePerBottle = 20;
+
+    let totalBottles = 0;
+    let totalAmount = 0;
+    let paidAmount = 0;
+    let unpaidAmount = 0;
+
+    filteredDeliveries.forEach((d) => {
+      const amount = d.bottles * ratePerBottle;
+      totalBottles += d.bottles;
+      totalAmount += amount;
+      if (d.status === 'Paid') {
+        paidAmount += amount;
+      } else {
+        unpaidAmount += amount;
+      }
+    });
+
+    return {
+      totalDeliveries: filteredDeliveries.length,
+      totalBottles,
+      totalAmount,
+      paidAmount,
+      unpaidAmount
+    };
+  };
+
   const toggleStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === 'Paid' ? 'Unpaid' : 'Paid';
     await axios.put(`https://api-nandan-node.onrender.com/api/deliveries/${id}/status`, {
@@ -95,9 +123,20 @@ For queries or support, feel free to reach out.
     window.open(`https://wa.me/91${customer.phone}?text=${encodedMsg}`, '_blank');
   };
 
+  const summary = getSummary();
+
   return (
     <div className="container py-4">
       <h3 className="mb-4">📋 Deliveries</h3>
+
+      {/* 🔷 Summary Box */}
+      <div className="alert alert-info d-flex flex-wrap gap-4 justify-content-between">
+        <div><strong>Total Deliveries:</strong> {summary.totalDeliveries}</div>
+        <div><strong>Total Bottles:</strong> {summary.totalBottles}</div>
+        <div><strong>Total Amount:</strong> ₹{summary.totalAmount}</div>
+        <div><strong>Paid:</strong> ₹{summary.paidAmount}</div>
+        <div><strong>Unpaid:</strong> ₹{summary.unpaidAmount}</div>
+      </div>
 
       {/* Month Filter */}
       <div className="mb-3">
@@ -119,6 +158,7 @@ For queries or support, feel free to reach out.
               <th>Customer</th>
               <th>Date</th>
               <th>Bottles</th>
+              <th>Amount (₹)</th>
               <th>Status</th>
               <th className="text-center">Actions</th>
             </tr>
@@ -129,6 +169,7 @@ For queries or support, feel free to reach out.
                 <td>{customers.find((c) => c._id === d.customerId)?.name || 'Unknown'}</td>
                 <td>{new Date(d.date).toLocaleDateString()}</td>
                 <td>{d.bottles}</td>
+                <td>{d.bottles * 20}</td> {/* 💰 Total per delivery */}
                 <td>
                   <button
                     className={`btn btn-sm ${d.status === 'Paid' ? 'btn-success' : 'btn-warning'}`}
@@ -148,10 +189,11 @@ For queries or support, feel free to reach out.
             ))}
             {filteredDeliveries.length === 0 && (
               <tr>
-                <td colSpan="5" className="text-center text-muted">No deliveries for selected month.</td>
+                <td colSpan="6" className="text-center text-muted">No deliveries for selected month.</td>
               </tr>
             )}
           </tbody>
+
         </table>
       </div>
 

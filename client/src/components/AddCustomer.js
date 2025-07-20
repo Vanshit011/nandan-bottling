@@ -5,19 +5,25 @@ const AddCustomer = () => {
   const [form, setForm] = useState({ name: '', phone: '', rate: '' });
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState('success'); // or 'danger'
+  const [toastType, setToastType] = useState('success'); // 'success' or 'danger'
 
-  // const normalizePhone = (phone) => {
-  //   return phone.replace(/\s/g, '').replace(/^(\+91)/, '');
-  // };
+  // ✅ Normalize phone: remove +91, spaces, leading 0s
+  const normalizePhone = (phone) => {
+    return phone
+      .replace(/\s/g, '')        // remove spaces
+      .replace(/^(\+91)/, '')    // remove +91
+      .replace(/^0+/, '');       // remove leading zeros
+  };
 
   const validatePhone = (phone) => {
-    const cleaned = phone.replace(/\s/g, '');
-    return /^(\+91)?[0-9]{10}$/.test(cleaned);
+    const cleaned = normalizePhone(phone);
+    return /^[0-9]{10}$/.test(cleaned);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const normalizedPhone = normalizePhone(form.phone);
 
     if (!validatePhone(form.phone)) {
       setToastType('danger');
@@ -27,11 +33,12 @@ const AddCustomer = () => {
       return;
     }
 
-
     try {
-      // Check if customer with same name already exists
+      // ✅ Check if customer with same name exists
       const res = await axios.get('https://api-nandan-node.onrender.com/api/customers');
-      const exists = res.data.some(cust => cust.name.trim().toLowerCase() === form.name.trim().toLowerCase());
+      const exists = res.data.some(
+        cust => cust.name.trim().toLowerCase() === form.name.trim().toLowerCase()
+      );
 
       if (exists) {
         setToastType('danger');
@@ -41,10 +48,11 @@ const AddCustomer = () => {
         return;
       }
 
-      // Add new customer
-      await axios.post('https://api-nandan-node.onrender.com/api/customers', form);
-      setForm({ name: '', phone: '', rate: '' });
+      // ✅ Post with normalized phone
+      const payload = { ...form, phone: normalizedPhone };
+      await axios.post('https://api-nandan-node.onrender.com/api/customers', payload);
 
+      setForm({ name: '', phone: '', rate: '' });
       setToastType('success');
       setToastMessage('✅ Customer Added Successfully!');
       setShowToast(true);
@@ -75,7 +83,7 @@ const AddCustomer = () => {
         setForm({
           ...form,
           name: selected.name?.[0] || '',
-          phone: selected.tel?.[0] || '',
+          phone: normalizePhone(selected.tel?.[0] || ''),
         });
       }
     } catch (error) {
@@ -143,7 +151,9 @@ const AddCustomer = () => {
               style={{ zIndex: 9999 }}
             >
               <div className="toast-header bg-transparent border-0">
-                <strong className="me-auto">{toastType === 'success' ? '✅ Success' : '⚠️ Error'}</strong>
+                <strong className="me-auto">
+                  {toastType === 'success' ? '✅ Success' : '⚠️ Error'}
+                </strong>
               </div>
               <div className="toast-body">{toastMessage}</div>
             </div>

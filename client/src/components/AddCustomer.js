@@ -7,9 +7,14 @@ const AddCustomer = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success'); // or 'danger'
 
+  const normalizePhone = (phone) => {
+    return phone.replace(/\s/g, '').replace(/^(\+91)/, '');
+  };
+
   const validatePhone = (phone) => {
+    const cleaned = normalizePhone(phone);
     const phoneRegex = /^[0-9]{10}$/;
-    return phoneRegex.test(phone);
+    return phoneRegex.test(cleaned);
   };
 
   const handleSubmit = async (e) => {
@@ -22,6 +27,7 @@ const AddCustomer = () => {
       setTimeout(() => setShowToast(false), 2000);
       return;
     }
+
 
     try {
       // Check if customer with same name already exists

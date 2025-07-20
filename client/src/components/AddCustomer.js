@@ -1,21 +1,81 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-
 const AddCustomer = () => {
   const [form, setForm] = useState({ name: '', phone: '', rate: '' });
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success'); // or 'danger'
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(phone);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validatePhone(form.phone)) {
+      setToastType('danger');
+      setToastMessage('❌ Phone number must be 10 digits');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
+      return;
+    }
+
     try {
+      // Check if customer with same name already exists
+      const res = await axios.get('https://api-nandan-node.onrender.com/api/customers');
+      const exists = res.data.some(cust => cust.name.trim().toLowerCase() === form.name.trim().toLowerCase());
+
+      if (exists) {
+        setToastType('danger');
+        setToastMessage('❌ Customer name already exists');
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 2000);
+        return;
+      }
+
+      // Add new customer
       await axios.post('https://api-nandan-node.onrender.com/api/customers', form);
       setForm({ name: '', phone: '', rate: '' });
-      setShowToast(true);  // ✅ Show Toast
-      setTimeout(() => setShowToast(false), 2000); // Auto-hide after 2 seconds
+
+      setToastType('success');
+      setToastMessage('✅ Customer Added Successfully!');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
     } catch (err) {
       console.error('Error Adding Customer:', err);
-      alert('❌ Failed to Add Customer');
+      setToastType('danger');
+      setToastMessage('❌ Failed to Add Customer');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
+    }
+  };
+
+  const handlePickContact = async () => {
+    try {
+      if (!('contacts' in navigator && 'ContactsManager' in window)) {
+        alert("Your browser doesn't support contact picker.");
+        return;
+      }
+
+      const props = ['name', 'tel'];
+      const opts = { multiple: false };
+
+      const contacts = await navigator.contacts.select(props, opts);
+
+      if (contacts.length > 0) {
+        const selected = contacts[0];
+        setForm({
+          ...form,
+          name: selected.name?.[0] || '',
+          phone: selected.tel?.[0] || '',
+        });
+      }
+    } catch (error) {
+      console.error('Error picking contact:', error);
+      alert('Failed to pick contact.');
     }
   };
 
@@ -35,6 +95,13 @@ const AddCustomer = () => {
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 required
               />
+              <button
+                type="button"
+                className="btn btn-outline-secondary w-100 mb-3"
+                onClick={handlePickContact}
+              >
+                📇 Select From Mobile Contacts
+              </button>
             </div>
             <div className="mb-3">
               <label className="form-label fw-bold">Phone Number</label>
@@ -61,20 +128,19 @@ const AddCustomer = () => {
               Add Customer
             </button>
           </form>
+
           {showToast && (
             <div
-              className="toast show position-fixed bottom-0 end-0 m-3"
+              className={`toast show position-fixed bottom-0 end-0 m-3 border-0 text-white bg-${toastType}`}
               role="alert"
               aria-live="assertive"
               aria-atomic="true"
               style={{ zIndex: 9999 }}
             >
-              <div className="toast-header bg-success text-white">
-                <strong className="me-auto">Success ✅</strong>
+              <div className="toast-header bg-transparent border-0">
+                <strong className="me-auto">{toastType === 'success' ? '✅ Success' : '⚠️ Error'}</strong>
               </div>
-              <div className="toast-body">
-                Customer Added Successfully!
-              </div>
+              <div className="toast-body">{toastMessage}</div>
             </div>
           )}
         </div>

@@ -7,14 +7,13 @@ const AddCustomer = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success'); // or 'danger'
 
-  const normalizePhone = (phone) => {
-    return phone.replace(/\s/g, '').replace(/^(\+91)/, '');
-  };
+  // const normalizePhone = (phone) => {
+  //   return phone.replace(/\s/g, '').replace(/^(\+91)/, '');
+  // };
 
   const validatePhone = (phone) => {
-    const cleaned = normalizePhone(phone);
-    const phoneRegex = /^[0-9]{10}$/;
-    return phoneRegex.test(cleaned);
+    const cleaned = phone.replace(/\s/g, '');
+    return /^(\+91)?[0-9]{10}$/.test(cleaned);
   };
 
   const handleSubmit = async (e) => {

@@ -3,6 +3,7 @@ import AddCustomer from './AddCustomer';
 import CustomerList from './CustomerList';
 import AddDelivery from './AddDelivery';
 import ViewDeliveries from './ViewDeliveries';
+import MonthSummary from './MonthSummary';
 // import AddDelivery from './AddDelivery';
 // import Delivery from './ViewDeliveries'; // ✅ View All Deliveries
 // import Billing from './Billing'; // Assuming you already have this
@@ -53,6 +54,12 @@ const Dashboard = () => {
         >
           📦 View Deliveries
         </button>
+        <button
+          className={`btn btn-outline-warning shadow-sm ${page === 'MonthSummary' ? 'active-btn' : ''}`}
+          onClick={() => setPage('MonthSummary')}
+        >
+          💳 Billing
+        </button>
         {/* <button
           className={`btn btn-outline-success shadow-sm ${page === 'delivery' ? 'active-btn' : ''}`}
           onClick={() => setPage('delivery')}
@@ -81,6 +88,8 @@ const Dashboard = () => {
         {page === 'list' && <CustomerList />}
         {page === 'delivery' && <AddDelivery />}
         {page === 'viewDeliveries' && <ViewDeliveries />}
+        {page === 'MonthSummary' && <MonthSummary />}
+        {/* Add other components as needed */}
         {/* {page === 'delivery' && <AddDelivery />} */}
         {/* {page === 'viewDeliveries' && <Delivery />} ✅ This renders ViewDeliveries */}
         {/* {page === 'billing' && <Billing />} */}

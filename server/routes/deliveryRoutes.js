@@ -11,7 +11,6 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Server error fetching deliveries' });
   }
 });
-
 // ✅ 2. POST new delivery
 router.post('/', async (req, res) => {
   try {
@@ -21,16 +20,27 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'customerId, bottles, and date are required' });
     }
 
+    // 🔍 Fetch customer's rate per bottle
+    const customer = await customerId.findById(customerId);
+    if (!customer || !customer.ratePerBottle) {
+      return res.status(404).json({ message: 'Customer or rate per bottle not found' });
+    }
+
+    const ratePerBottle = customer.ratePerBottle;
+    const amount = bottles * ratePerBottle;
+
     const delivery = new Delivery({
       customerId,
       bottles,
       date: new Date(date),
-      status: 'Unpaid'  // default
+      amount,                 // 💰 Save total amount
+      status: 'Unpaid'        // Default
     });
 
     await delivery.save();
     res.status(201).json(delivery);
   } catch (error) {
+    console.error('Add delivery error:', error);
     res.status(500).json({ message: 'Failed to add delivery' });
   }
 });
@@ -80,5 +90,77 @@ router.put('/:id/status', async (req, res) => {
     res.status(500).json({ message: 'Failed to update status' });
   }
 });
+
+// ✅ 7. GET: Month-on-Month billing summary for all customers
+router.get("/month-on-month-summary", async (req, res) => {
+  const { month, year } = req.query;
+
+  const monthInt = parseInt(month);
+  const yearInt = parseInt(year);
+
+  try {
+    const deliveries = await Delivery.aggregate([
+      {
+        $match: {
+          date: {
+            $gte: new Date(`${yearInt}-${monthInt}-01`),
+            $lt: new Date(`${yearInt}-${monthInt + 1}-01`)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: "$customerId",
+          totalDeliveries: { $sum: 1 },
+          totalBottles: { $sum: "$bottles" }
+          // Don't calculate totalAmount here
+        }
+      },
+      {
+        $lookup: {
+          from: "customers",
+          localField: "_id",
+          foreignField: "_id",
+          as: "customer"
+        }
+      },
+      {
+        $unwind: "$customer"
+      },
+      {
+        $addFields: {
+          ratePerBottle: "$customer.rate",
+          totalAmount: { $multiply: ["$totalBottles", "$customer.rate"] }
+        }
+      },
+      {
+        $project: {
+          customerId: "$_id",
+          customerName: "$customer.name",
+          phone: "$customer.phone",
+          ratePerBottle: 1,
+          totalDeliveries: 1,
+          totalBottles: 1,
+          totalAmount: 1,
+          month: {
+            $concat: [
+              { $toString: monthInt },
+              "-",
+              { $toString: yearInt }
+            ]
+          }
+        }
+      }
+    ]);
+
+    res.json(deliveries);
+  } catch (err) {
+    console.error("Error in summary:", err);
+    res.status(500).json({ message: "Failed to generate summary" });
+  }
+});
+
+
+
 
 module.exports = router;

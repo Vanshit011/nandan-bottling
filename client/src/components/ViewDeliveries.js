@@ -38,17 +38,19 @@ const ViewDeliveries = () => {
   };
 
   const getSummary = () => {
-    const ratePerBottle = 20;
-
     let totalBottles = 0;
     let totalAmount = 0;
     let paidAmount = 0;
     let unpaidAmount = 0;
 
     filteredDeliveries.forEach((d) => {
-      const amount = d.bottles * ratePerBottle;
+      const customer = customers.find((c) => c._id === d.customerId);
+      const rate = customer?.ratePerBottle || 0;
+      const amount = d.bottles * rate;
+
       totalBottles += d.bottles;
       totalAmount += amount;
+
       if (d.status === 'Paid') {
         paidAmount += amount;
       } else {
@@ -60,10 +62,11 @@ const ViewDeliveries = () => {
       totalDeliveries: filteredDeliveries.length,
       totalBottles,
       totalAmount,
-      paidAmount,
-      unpaidAmount
+      // paidAmount,
+      // unpaidAmount
     };
   };
+
 
   const toggleStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === 'Paid' ? 'Unpaid' : 'Paid';
@@ -86,42 +89,42 @@ const ViewDeliveries = () => {
     fetchData();
   };
 
-  const sendWhatsApp = (delivery) => {
-    const customer = customers.find((c) => c._id === delivery.customerId);
-    if (!customer?.phone) {
-      alert('Phone number not available for this customer');
-      return;
-    }
+  //   const sendWhatsApp = (delivery) => {
+  //     const customer = customers.find((c) => c._id === delivery.customerId);
+  //     if (!customer?.phone) {
+  //       alert('Phone number not available for this customer');
+  //       return;
+  //     }
 
-    const deliveryDate = new Date(delivery.date).toLocaleDateString('en-IN');
-    const ratePerBottle = 20;
-    const totalAmount = delivery.bottles * ratePerBottle;
+  //     const deliveryDate = new Date(delivery.date).toLocaleDateString('en-IN');
+  //     const ratePerBottle = 20;
+  //     const totalAmount = delivery.bottles * ratePerBottle;
 
-    const message = `
-Dear ${customer.name},
+  //     const message = `
+  // Dear ${customer.name},
 
-🧾 *Payment Reminder - Uma Vanshi Drinking Water*
+  // 🧾 *Payment Reminder - Uma Vanshi Drinking Water*
 
-This is a kind reminder regarding your water delivery on *${deliveryDate}*:
+  // This is a kind reminder regarding your water delivery on *${deliveryDate}*:
 
-• Number of Bottles: ${delivery.bottles}  
-• Rate per Bottle: ₹${ratePerBottle}  
-• 🔢 *Total Amount: ₹${totalAmount}*  
-• Payment Status: *${delivery.status}*
+  // • Number of Bottles: ${delivery.bottles}  
+  // • Rate per Bottle: ₹${ratePerBottle}  
+  // • 🔢 *Total Amount: ₹${totalAmount}*  
+  // • Payment Status: *${delivery.status}*
 
-💳 Kindly clear the pending amount at your earliest convenience.  
-If you’ve already paid, please ignore this message.
+  // 💳 Kindly clear the pending amount at your earliest convenience.  
+  // If you’ve already paid, please ignore this message.
 
-Thank you for choosing Uma Vanshi Drinking Water.  
-For queries or support, feel free to reach out.
+  // Thank you for choosing Uma Vanshi Drinking Water.  
+  // For queries or support, feel free to reach out.
 
-🙏 Regards,  
-*Uma Vanshi Drinking Water*
-    `;
+  // 🙏 Regards,  
+  // *Uma Vanshi Drinking Water*
+  //     `;
 
-    const encodedMsg = encodeURIComponent(message);
-    window.open(`https://wa.me/91${customer.phone}?text=${encodedMsg}`, '_blank');
-  };
+  //     const encodedMsg = encodeURIComponent(message);
+  //     window.open(`https://wa.me/91${customer.phone}?text=${encodedMsg}`, '_blank');
+  //   };
 
   const summary = getSummary();
 
@@ -133,9 +136,7 @@ For queries or support, feel free to reach out.
       <div className="alert alert-info d-flex flex-wrap gap-4 justify-content-between">
         <div><strong>Total Deliveries:</strong> {summary.totalDeliveries}</div>
         <div><strong>Total Bottles:</strong> {summary.totalBottles}</div>
-        <div><strong>Total Amount:</strong> ₹{summary.totalAmount}</div>
-        <div><strong>Paid:</strong> ₹{summary.paidAmount}</div>
-        <div><strong>Unpaid:</strong> ₹{summary.unpaidAmount}</div>
+        {/* <div><strong>Total Amount:</strong> ₹{summary.totalAmount}</div> */}
       </div>
 
       {/* Month Filter */}
@@ -158,8 +159,8 @@ For queries or support, feel free to reach out.
               <th>Customer</th>
               <th>Date</th>
               <th>Bottles</th>
-              <th>Amount (₹)</th>
-              <th>Status</th>
+              {/* <th>Amount (₹)</th> */}
+              {/* <th>Status</th> */}
               <th className="text-center">Actions</th>
             </tr>
           </thead>
@@ -169,20 +170,20 @@ For queries or support, feel free to reach out.
                 <td>{customers.find((c) => c._id === d.customerId)?.name || 'Unknown'}</td>
                 <td>{new Date(d.date).toLocaleDateString()}</td>
                 <td>{d.bottles}</td>
-                <td>{d.bottles * 20}</td> {/* 💰 Total per delivery */}
-                <td>
+                {/* <td>₹{(d.bottles * (customers.find((c) => c._id === d.customerId)?.ratePerBottle || 0))}</td> */}
+                {/* <td>
                   <button
                     className={`btn btn-sm ${d.status === 'Paid' ? 'btn-success' : 'btn-warning'}`}
                     onClick={() => toggleStatus(d._id, d.status)}
                   >
                     {d.status}
                   </button>
-                </td>
+                </td> */}
                 <td className="text-center">
                   <div className="d-flex flex-wrap gap-2 justify-content-center">
                     <button className="btn btn-sm btn-primary" onClick={() => setEditForm(d)}>Edit</button>
                     <button className="btn btn-sm btn-danger" onClick={() => deleteDelivery(d._id)}>Delete</button>
-                    <button className="btn btn-sm btn-success" onClick={() => sendWhatsApp(d)}>📲 WhatsApp</button>
+                    {/* <button className="btn btn-sm btn-success" onClick={() => sendWhatsApp(d)}>📲 WhatsApp</button> */}
                   </div>
                 </td>
               </tr>

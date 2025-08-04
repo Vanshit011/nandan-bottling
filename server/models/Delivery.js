@@ -10,6 +10,10 @@ const deliverySchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  amount: {
+    type: Number,
+    required: true   // ✅ Add this line
+  },
   date: {
     type: Date,
     required: true

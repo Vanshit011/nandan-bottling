@@ -1,26 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-// import Customer from "../components/CustomerList";
 
 const MonthSummary = () => {
     const [summary, setSummary] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // default current month
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // default current year
-    // const [Customers, setCustomers] = useState([]);
-
-    // useEffect(() => {
-    //     const fetchCustomers = async () => {
-    //         try {
-    //             const res = await axios.get("http://localhost:5000/api/customers");
-    //             setCustomers(res.data);
-    //         } catch (err) {
-    //             console.error("Error fetching customers", err);
-    //         }
-    //     };
-
-    //     fetchCustomers();
-    // }, []);
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
     const fetchSummary = async (month, year) => {
         setLoading(true);
@@ -28,7 +13,6 @@ const MonthSummary = () => {
             const res = await axios.get(
                 `https://api-nandan-node.onrender.com/api/deliveries/month-on-month-summary?month=${month}&year=${year}`
             );
-            console.log("Filtered Month Summary Data:", res.data);
             setSummary(res.data);
         } catch (err) {
             console.error("Failed to fetch summary:", err);
@@ -41,13 +25,8 @@ const MonthSummary = () => {
         fetchSummary(selectedMonth, selectedYear);
     }, [selectedMonth, selectedYear]);
 
-    const handleMonthChange = (e) => {
-        setSelectedMonth(parseInt(e.target.value));
-    };
-
-    const handleYearChange = (e) => {
-        setSelectedYear(parseInt(e.target.value));
-    };
+    const handleMonthChange = (e) => setSelectedMonth(parseInt(e.target.value));
+    const handleYearChange = (e) => setSelectedYear(parseInt(e.target.value));
 
     const sendWhatsApp = (delivery) => {
         const {
@@ -80,7 +59,7 @@ If already paid, kindly ignore this message.
 
 🙏 Thank you,  
 *Uma Vanshi Drinking Water*
-    `;
+        `;
 
         const encodedMsg = encodeURIComponent(message);
         window.open(`https://wa.me/91${phone}?text=${encodedMsg}`, '_blank');
@@ -92,22 +71,32 @@ If already paid, kindly ignore this message.
     ];
 
     return (
-        <div className="p-4">
-            <h2 className="text-2xl font-bold mb-4">📊 Month-on-Month Delivery Summary</h2>
+        <div className="p-4 md:p-8 max-w-7xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-8 text-blue-700">
+                📊 Month-on-Month Delivery Summary
+            </h2>
 
-            {/* Month and Year Filter */}
-            <div className="flex gap-4 items-center mb-6">
+            {/* Filters */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div>
-                    <label className="mr-2 font-medium">Month:</label>
-                    <select value={selectedMonth} onChange={handleMonthChange} className="border rounded px-2 py-1">
+                    <label className="block text-sm font-semibold mb-1">Month:</label>
+                    <select
+                        value={selectedMonth}
+                        onChange={handleMonthChange}
+                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
                         {monthOptions.map((name, idx) => (
                             <option key={idx + 1} value={idx + 1}>{name}</option>
                         ))}
                     </select>
                 </div>
                 <div>
-                    <label className="mr-2 font-medium">Year:</label>
-                    <select value={selectedYear} onChange={handleYearChange} className="border rounded px-2 py-1">
+                    <label className="block text-sm font-semibold mb-1">Year:</label>
+                    <select
+                        value={selectedYear}
+                        onChange={handleYearChange}
+                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
                         {[2024, 2025, 2026, 2027].map((year) => (
                             <option key={year} value={year}>{year}</option>
                         ))}
@@ -115,34 +104,35 @@ If already paid, kindly ignore this message.
                 </div>
             </div>
 
-            {/* Data Table */}
+            {/* Table */}
             {loading ? (
-                <p>Loading...</p>
+                <p className="text-center text-gray-600">Loading summary...</p>
             ) : (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full table-auto border border-gray-300">
-                        <thead className="bg-gray-100">
+                <div className="overflow-x-auto border rounded-lg shadow-sm bg-white">
+                    <table className="min-w-full table-auto text-sm text-gray-800">
+                        <thead className="bg-blue-100 text-blue-800">
                             <tr>
-                                <th className="px-4 py-2 border">Customer Name</th>
+                                <th className="px-4 py-2 border">Customer</th>
                                 <th className="px-4 py-2 border">Phone</th>
                                 <th className="px-4 py-2 border">Month</th>
                                 <th className="px-4 py-2 border">Deliveries</th>
                                 <th className="px-4 py-2 border">Bottles</th>
                                 <th className="px-4 py-2 border">Amount (₹)</th>
+                                <th className="px-4 py-2 border">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {summary.map((item, index) => (
-                                <tr key={index} className="text-center border-t">
+                                <tr key={index} className="text-center hover:bg-gray-50 transition">
                                     <td className="px-4 py-2 border">{item.customerName}</td>
                                     <td className="px-4 py-2 border">{item.phone}</td>
                                     <td className="px-4 py-2 border">{item.month}</td>
                                     <td className="px-4 py-2 border">{item.totalDeliveries}</td>
                                     <td className="px-4 py-2 border">{item.totalBottles}</td>
-                                    <td className="px-4 py-2 border">₹{item.totalAmount}</td>
+                                    <td className="px-4 py-2 border font-semibold text-green-600">₹{item.totalAmount}</td>
                                     <td className="px-4 py-2 border">
                                         <button
-                                            className="btn btn-sm btn-success"
+                                            className="bg-green hover:bg-green-600 text-black text-xs px-3 py-1 rounded shadow-sm transition"
                                             onClick={() => sendWhatsApp(item)}
                                         >
                                             📲 WhatsApp
@@ -151,7 +141,6 @@ If already paid, kindly ignore this message.
                                 </tr>
                             ))}
                         </tbody>
-
                     </table>
                 </div>
             )}

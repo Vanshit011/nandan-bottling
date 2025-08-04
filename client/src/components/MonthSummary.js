@@ -26,7 +26,7 @@ const MonthSummary = () => {
         setLoading(true);
         try {
             const res = await axios.get(
-                `http://localhost:5000/api/deliveries/month-on-month-summary?month=${month}&year=${year}`
+                `https://api-nandan-node.onrender.com/api/deliveries/month-on-month-summary?month=${month}&year=${year}`
             );
             console.log("Filtered Month Summary Data:", res.data);
             setSummary(res.data);

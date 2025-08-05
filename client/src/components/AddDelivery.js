@@ -67,11 +67,12 @@ const AddDelivery = () => {
                         value={form.customerId}
                         onChange={handleChange}
                         required
-                        className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full sm:max-w-xs px-3 py-2 text-sm border rounded-md truncate"
                     >
-                        <option value="">Select Customer</option>
+                        <option value="" className="text-xs sm:text-sm"
+                        >Select Customer</option>
                         {customers.map((c) => (
-                            <option key={c._id} value={c._id}>
+                            <option className="text-xs sm:text-sm text-gray " key={c._id} value={c._id}>
                                 {c.name.length > 40 ? `${c.name.slice(0, 40)}...` : c.name}
                             </option>
                         ))}

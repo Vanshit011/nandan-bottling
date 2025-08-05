@@ -18,11 +18,7 @@ const deliverySchema = new mongoose.Schema({
     type: Date,
     required: true
   },
-  status: {
-    type: String,
-    enum: ['Paid', 'Unpaid'],
-    default: 'Unpaid'
-  }
+ 
 }, { timestamps: true });
 
 module.exports = mongoose.model('Delivery', deliverySchema);

@@ -132,7 +132,7 @@ If already paid, kindly ignore this message.
                                     <td className="px-4 py-2 border font-semibold text-green-600">₹{item.totalAmount}</td>
                                     <td className="px-4 py-2 border">
                                         <button
-                                            className="bg-green hover:bg-green-600 text-black text-xs px-3 py-1 rounded shadow-sm transition"
+                                            className=" btn btn-success w-100 shadow bg-green hover:bg-green-600 text-black text-xs px-3 py-1 rounded shadow-sm transition"
                                             onClick={() => sendWhatsApp(item)}
                                         >
                                             📲 WhatsApp

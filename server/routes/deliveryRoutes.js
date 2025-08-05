@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Delivery = require('../models/Delivery');
+const Customer = require('../models/Customer');
 
 // ✅ 1. GET all deliveries
 router.get('/', async (req, res) => {
@@ -12,36 +13,37 @@ router.get('/', async (req, res) => {
   }
 });
 // ✅ 2. POST new delivery
-router.post('/', async (req, res) => {
+
+router.post("/", async (req, res) => {
   try {
-    const { customerId, bottles, date } = req.body;
+    const { customerId, date, bottles, status } = req.body;
 
-    if (!customerId || !bottles || !date) {
-      return res.status(400).json({ message: 'customerId, bottles, and date are required' });
+    if (!customerId || !date || !bottles || !status) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // 🔍 Fetch customer's rate per bottle
-    const customer = await customerId.findById(customerId);
-    if (!customer || !customer.ratePerBottle) {
-      return res.status(404).json({ message: 'Customer or rate per bottle not found' });
+    // ✅ Fetch customer
+    const customer = await Customer.findById(customerId);
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
     }
 
-    const ratePerBottle = customer.ratePerBottle;
+    const ratePerBottle = customer.rate;
     const amount = bottles * ratePerBottle;
 
-    const delivery = new Delivery({
+    const newDelivery = new Delivery({
       customerId,
+      date,
       bottles,
-      date: new Date(date),
-      amount,                 // 💰 Save total amount
-      status: 'Unpaid'        // Default
+      status,
+      amount,
     });
 
-    await delivery.save();
-    res.status(201).json(delivery);
+    await newDelivery.save();
+    res.status(201).json({ message: "Delivery added successfully" });
   } catch (error) {
-    console.error('Add delivery error:', error);
-    res.status(500).json({ message: 'Failed to add delivery' });
+    console.error("Error in POST /deliveries:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
@@ -77,19 +79,19 @@ router.delete('/:id', async (req, res) => {
 });
 
 // ✅ 5. PUT toggle status (Paid <-> Unpaid)
-router.put('/:id/status', async (req, res) => {
-  try {
-    const delivery = await Delivery.findById(req.params.id);
-    if (!delivery) return res.status(404).json({ message: 'Delivery not found' });
+// router.put('/:id/status', async (req, res) => {
+//   try {
+//     const delivery = await Delivery.findById(req.params.id);
+//     if (!delivery) return res.status(404).json({ message: 'Delivery not found' });
 
-    delivery.status = delivery.status === 'Paid' ? 'Unpaid' : 'Paid';
-    await delivery.save();
+//     delivery.status = delivery.status === 'Paid' ? 'Unpaid' : 'Paid';
+//     await delivery.save();
 
-    res.json({ message: 'Status updated', delivery });
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to update status' });
-  }
-});
+//     res.json({ message: 'Status updated', delivery });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Failed to update status' });
+//   }
+// });
 
 // ✅ 7. GET: Month-on-Month billing summary for all customers
 router.get("/month-on-month-summary", async (req, res) => {
@@ -159,8 +161,6 @@ router.get("/month-on-month-summary", async (req, res) => {
     res.status(500).json({ message: "Failed to generate summary" });
   }
 });
-
-
 
 
 module.exports = router;

@@ -71,7 +71,7 @@ If already paid, kindly ignore this message.
     ];
 
     return (
-        <div className="p-4 md:p-8 max-w-7xl mx-auto">
+        <div className="pt-5 md:p-8 max-w-7xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-8 text-blue-700">
                 📊 Month-on-Month Delivery Summary
             </h2>

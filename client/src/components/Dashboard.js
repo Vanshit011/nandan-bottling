@@ -1,100 +1,95 @@
+// src/components/Dashboard.js
 import { useState } from 'react';
-import AddCustomer from './AddCustomer';
-import CustomerList from './CustomerList';
-import AddDelivery from './AddDelivery';
-import ViewDeliveries from './ViewDeliveries';
-import MonthSummary from './MonthSummary';
-// import AddDelivery from './AddDelivery';
-// import Delivery from './ViewDeliveries'; // ✅ View All Deliveries
-// import Billing from './Billing'; // Assuming you already have this
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import '../styles/Dashboard.css';
+import '../styles/Sidebar.css';  // You can rename this to Navbar.css or keep it
 
 const Dashboard = () => {
-  const [page, setPage] = useState('customers');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    window.location.href = '/';
+    window.location.href = '/';  // Redirect + full page reload
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
   };
 
   return (
-    <div className="container py-4">
-      <div className="text-center mb-5">
-        <h2 className="fw-bold text-primary animate-fade-in">
-          💧 Uma Vanshi Drinking Water Admin Dashboard
-        </h2>
-        <p className="text-muted animate-slide-up">
-          Manage Customers, Deliveries & Monthly Billing Easily.
-        </p>
-      </div>
+    <>
+      {/* Fixed Top Navbar */}
+      <header className="top-navbar">
+        <div className="navbar-container">
+          <h4 className="navbar-brand">💧 Uma Vanshi Drinking Water</h4>
 
-      <div className="d-flex flex-wrap justify-content-center gap-2 mb-4">
-        <button
-          className={`btn btn-outline-primary shadow-sm ${page === 'customers' ? 'active-btn' : ''}`}
-          onClick={() => setPage('customers')}
-        >
-          ➕ Add Customer
-        </button>
-        <button
-          className={`btn btn-outline-secondary shadow-sm ${page === 'list' ? 'active-btn' : ''}`}
-          onClick={() => setPage('list')}
-        >
-          👥 View Customers
-        </button>
-        <button
-          className={`btn btn-outline-success shadow-sm ${page === 'delivery' ? 'active-btn' : ''}`}
-          onClick={() => setPage('delivery')}
-        >
-          🚚 Add Delivery
-        </button>
-        <button
-          className={`btn btn-outline-info shadow-sm ${page === 'viewDeliveries' ? 'active-btn' : ''}`}
-          onClick={() => setPage('viewDeliveries')}
-        >
-          📦 View Deliveries
-        </button>
-        <button
-          className={`btn btn-outline-warning shadow-sm ${page === 'MonthSummary' ? 'active-btn' : ''}`}
-          onClick={() => setPage('MonthSummary')}
-        >
-          💳 Billing
-        </button>
-        {/* <button
-          className={`btn btn-outline-success shadow-sm ${page === 'delivery' ? 'active-btn' : ''}`}
-          onClick={() => setPage('delivery')}
-        >
-          🚚 Add Delivery
-        </button>
-        <button
-          className={`btn btn-outline-success shadow-sm ${page === 'viewDeliveries' ? 'active-btn' : ''}`}
-          onClick={() => setPage('viewDeliveries')}
-        >
-          📦 View Deliveries
-        </button> */}
-        {/* <button
-          className={`btn btn-outline-warning shadow-sm ${page === 'billing' ? 'active-btn' : ''}`}
-          onClick={() => setPage('billing')}
-        >
-          💳 Billing
-        </button> */}
-        <button className="btn btn-danger shadow-sm" onClick={handleLogout}>
-          🚪 Logout
-        </button>
-      </div>
+          {/* Hamburger menu button for mobile */}
+          <button
+            className="navbar-toggle d-md-none"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            ☰
+          </button>
 
-      <div className="p-3 border rounded bg-light shadow animated-box">
-        {page === 'customers' && <AddCustomer />}
-        {page === 'list' && <CustomerList />}
-        {page === 'delivery' && <AddDelivery />}
-        {page === 'viewDeliveries' && <ViewDeliveries />}
-        {page === 'MonthSummary' && <MonthSummary />}
-        {/* Add other components as needed */}
-        {/* {page === 'delivery' && <AddDelivery />} */}
-        {/* {page === 'viewDeliveries' && <Delivery />} ✅ This renders ViewDeliveries */}
-        {/* {page === 'billing' && <Billing />} */}
-      </div>
-    </div>
+          {/* Navigation Links */}
+          <nav className={`navbar-links ${menuOpen ? 'open' : ''}`}>
+            <NavLink
+              to="/dashboard/customers"
+              className="nav-link"
+              onClick={() => setMenuOpen(false)}
+            >
+              ➕ Add Customer
+            </NavLink>
+            <NavLink
+              to="/dashboard/view-customers"
+              className="nav-link"
+              onClick={() => setMenuOpen(false)}
+            >
+              👥 View Customers
+            </NavLink>
+            <NavLink
+              to="/dashboard/add-delivery"
+              className="nav-link"
+              onClick={() => setMenuOpen(false)}
+            >
+              🚚 Add Delivery
+            </NavLink>
+            <NavLink
+              to="/dashboard/view-deliveries"
+              className="nav-link"
+              onClick={() => setMenuOpen(false)}
+            >
+              📦 View Deliveries
+            </NavLink>
+            <NavLink
+              to="/dashboard/billing"
+              className="nav-link"
+              onClick={() => setMenuOpen(false)}
+            >
+              💳 Billing
+            </NavLink>
+            <button
+              className="btn btn-danger logout-btn"
+              onClick={() => {
+                localStorage.removeItem('token');
+                window.location.href = '/';
+              }}
+            >
+              🚪 Logout
+            </button>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="dashboard-content">
+        <div className="container py-4">
+          <Outlet />
+        </div>
+      </main>
+    </>
   );
 };
 

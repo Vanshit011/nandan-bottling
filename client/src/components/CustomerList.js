@@ -22,7 +22,7 @@ const CustomerList = () => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
         await axios.delete(`https://api-nandan-node.onrender.com/api/customers/${id}`);
-        setToast({ show: true, message: 'Customer Deleted Successfully!' });
+        setToast({ show: true, message: '✅ Customer Deleted Successfully!' });
         fetchCustomers();
       } catch (err) {
         setToast({ show: true, message: '❌ Failed to Delete Customer' });
@@ -40,7 +40,7 @@ const CustomerList = () => {
     try {
       await axios.put(`https://api-nandan-node.onrender.com/api/customers/${editCustomer._id}`, form);
       setEditCustomer(null);
-      setToast({ show: true, message: 'Customer Updated Successfully!' });
+      setToast({ show: true, message: '✅ Customer Updated Successfully!' });
       fetchCustomers();
     } catch (err) {
       setToast({ show: true, message: '❌ Failed to Update Customer' });
@@ -49,48 +49,65 @@ const CustomerList = () => {
 
   useEffect(() => {
     if (toast.show) {
-      const timer = setTimeout(() => setToast({ show: false, message: '' }), 2000);
+      const timer = setTimeout(() => setToast({ show: false, message: '' }), 2500);
       return () => clearTimeout(timer);
     }
   }, [toast]);
 
   return (
-    <div>
-      <h4 className="mb-4 fw-bold text-primary">Customer List</h4>
-      <table className="table table-striped table-bordered">
-        <thead className="table-primary">
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Rate</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {customers.map((c, idx) => (
-            <tr key={c._id}>
-              <td>{idx + 1}</td>
-              <td>{c.name}</td>
-              <td>{c.phone}</td>
-              <td>₹{c.rate}</td>
-              <td>
-                <button className="btn btn-sm btn-warning me-2" onClick={() => openEditModal(c)}>Edit</button>
-                <button className="btn btn-sm btn-danger" onClick={() => handleDelete(c._id)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="card shadow-sm bg-white">
+      <div className="card-body">
+        <h4 className="mb-4 fw-bold text-primary">👥 Customer List</h4>
 
-      {/* ✅ Modal for Edit */}
+        <div className="table-responsive">
+          <table className="table table-hover align-middle table-bordered">
+            <thead className="table-primary">
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Rate</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {customers.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="text-center text-muted">
+                    No customers found.
+                  </td>
+                </tr>
+              ) : (
+                customers.map((c, idx) => (
+                  <tr key={c._id}>
+                    <td>{idx + 1}</td>
+                    <td>{c.name}</td>
+                    <td>{c.phone}</td>
+                    <td>₹{c.rate}</td>
+                    <td>
+                      <button className="btn btn-sm btn-warning me-2" onClick={() => openEditModal(c)}>
+                        ✏️ Edit
+                      </button>
+                      <button className="btn btn-sm btn-danger" onClick={() => handleDelete(c._id)}>
+                        🗑️ Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ✅ Edit Modal */}
       {editCustomer && (
-        <div className="modal show fade d-block" tabIndex="-1" role="dialog">
-          <div className="modal-dialog" role="document">
+        <div className="modal show fade d-block" tabIndex="-1">
+          <div className="modal-dialog">
             <div className="modal-content">
               <form onSubmit={handleEditSubmit}>
                 <div className="modal-header">
-                  <h5 className="modal-title">Edit Customer</h5>
+                  <h5 className="modal-title">✏️ Edit Customer</h5>
                   <button type="button" className="btn-close" onClick={() => setEditCustomer(null)}></button>
                 </div>
                 <div className="modal-body">
@@ -126,8 +143,10 @@ const CustomerList = () => {
                   </div>
                 </div>
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-secondary" onClick={() => setEditCustomer(null)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary">Save Changes</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setEditCustomer(null)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary">💾 Save</button>
                 </div>
               </form>
             </div>
@@ -147,9 +166,7 @@ const CustomerList = () => {
           <div className="toast-header bg-success text-white">
             <strong className="me-auto">Notification</strong>
           </div>
-          <div className="toast-body">
-            {toast.message}
-          </div>
+          <div className="toast-body">{toast.message}</div>
         </div>
       )}
     </div>

@@ -16,13 +16,14 @@ router.get('/', async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { customerId, date, bottles, status } = req.body;
+    const { customerId, date, bottles } = req.body;
 
-    if (!customerId || !date || !bottles || !status) {
+    // ✅ Only check fields you actually need
+    if (!customerId || !date || !bottles) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // ✅ Fetch customer
+    // ✅ Fetch customer by ID
     const customer = await Customer.findById(customerId);
     if (!customer) {
       return res.status(404).json({ message: "Customer not found" });
@@ -35,7 +36,6 @@ router.post("/", async (req, res) => {
       customerId,
       date,
       bottles,
-      status,
       amount,
     });
 
@@ -46,6 +46,7 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+
 
 // ✅ 3. PUT update/edit delivery by ID
 router.put('/:id', async (req, res) => {

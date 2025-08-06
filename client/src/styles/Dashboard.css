@@ -1,37 +1,107 @@
-/* Dashboard.css */
+/* Fixed Top Navbar Styles */
 
-/* Button Animation */
-.active-btn {
-  background-color: #0d6efd !important;
-  color: white !important;
-  border-color: #0d6efd !important;
-  transition: 0.3s ease-in-out;
+.top-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #007bff; /* Bootstrap primary blue */
+  color: white;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.active-btn:hover {
-  transform: scale(1.05);
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
-/* Page Animations */
-.animate-fade-in {
-  animation: fadeIn 1.2s ease;
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.25rem;
+  user-select: none;
 }
 
-.animate-slide-up {
-  animation: slideUp 1s ease;
+/* Hamburger Button */
+.navbar-toggle {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
 }
 
-@keyframes fadeIn {
-  0% { opacity: 0; transform: translateY(-20px); }
-  100% { opacity: 1; transform: translateY(0); }
+/* Navigation Links */
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-@keyframes slideUp {
-  0% { opacity: 0; transform: translateY(30px); }
-  100% { opacity: 1; transform: translateY(0); }
+/* Link styles */
+.nav-link {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  user-select: none;
 }
 
-/* Card Animation */
-.animated-box {
-  animation: fadeIn 0.8s ease;
+.nav-link:hover,
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Logout button */
+.logout-btn {
+  background-color: #dc3545; /* Bootstrap danger red */
+  border: none;
+  padding: 0.4rem 0.75rem;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
+/* Responsive: Mobile */
+@media (max-width: 767.98px) {
+  .navbar-links {
+    flex-direction: column;
+    width: 100%;
+    display: none;
+    margin-top: 0.5rem;
+  }
+  .navbar-links.open {
+    display: flex;
+  }
+  .nav-link {
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem 0;
+  }
+  .logout-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+  
+  /* Hide hamburger on desktop */
+  .d-md-none {
+    display: inline-block;
+  }
+}
+
+/* Push content down so it doesn't go under fixed navbar */
+.dashboard-content {
+  padding-top: 60px; /* Adjust based on navbar height */
 }

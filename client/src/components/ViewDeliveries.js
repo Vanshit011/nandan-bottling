@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const ViewDeliveries = () => {
   const [customers, setCustomers] = useState([]);
@@ -8,7 +8,7 @@ const ViewDeliveries = () => {
   const [editForm, setEditForm] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   });
 
   useEffect(() => {
@@ -21,8 +21,8 @@ const ViewDeliveries = () => {
 
   const fetchData = async () => {
     const [custRes, deliveryRes] = await Promise.all([
-      axios.get('https://api-nandan-node.onrender.com/api/customers'),
-      axios.get('https://api-nandan-node.onrender.com/api/deliveries'),
+      axios.get("https://api-nandan-node.onrender.com/api/customers"),
+      axios.get("https://api-nandan-node.onrender.com/api/deliveries"),
     ]);
     setCustomers(custRes.data);
     setDeliveries(deliveryRes.data.reverse());
@@ -31,7 +31,7 @@ const ViewDeliveries = () => {
   const filterByMonth = () => {
     const filtered = deliveries.filter((d) => {
       const date = new Date(d.date);
-      const deliveryMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const deliveryMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
       return deliveryMonth === selectedMonth;
     });
     setFilteredDeliveries(filtered);
@@ -40,8 +40,6 @@ const ViewDeliveries = () => {
   const getSummary = () => {
     let totalBottles = 0;
     let totalAmount = 0;
-    let paidAmount = 0;
-    let unpaidAmount = 0;
 
     filteredDeliveries.forEach((d) => {
       const customer = customers.find((c) => c._id === d.customerId);
@@ -50,28 +48,19 @@ const ViewDeliveries = () => {
 
       totalBottles += d.bottles;
       totalAmount += amount;
-
-      if (d.status === 'Paid') {
-        paidAmount += amount;
-      } else {
-        unpaidAmount += amount;
-      }
     });
 
     return {
       totalDeliveries: filteredDeliveries.length,
       totalBottles,
       totalAmount,
-      // paidAmount,
-      // unpaidAmount
     };
   };
 
-
   const toggleStatus = async (id, currentStatus) => {
-    const newStatus = currentStatus === 'Paid' ? 'Unpaid' : 'Paid';
+    const newStatus = currentStatus === "Paid" ? "Unpaid" : "Paid";
     await axios.put(`https://api-nandan-node.onrender.com/api/deliveries/${id}/status`, {
-      status: newStatus
+      status: newStatus,
     });
     fetchData();
   };
@@ -89,169 +78,138 @@ const ViewDeliveries = () => {
     fetchData();
   };
 
-  //   const sendWhatsApp = (delivery) => {
-  //     const customer = customers.find((c) => c._id === delivery.customerId);
-  //     if (!customer?.phone) {
-  //       alert('Phone number not available for this customer');
-  //       return;
-  //     }
-
-  //     const deliveryDate = new Date(delivery.date).toLocaleDateString('en-IN');
-  //     const ratePerBottle = 20;
-  //     const totalAmount = delivery.bottles * ratePerBottle;
-
-  //     const message = `
-  // Dear ${customer.name},
-
-  // 🧾 *Payment Reminder - Uma Vanshi Drinking Water*
-
-  // This is a kind reminder regarding your water delivery on *${deliveryDate}*:
-
-  // • Number of Bottles: ${delivery.bottles}  
-  // • Rate per Bottle: ₹${ratePerBottle}  
-  // • 🔢 *Total Amount: ₹${totalAmount}*  
-  // • Payment Status: *${delivery.status}*
-
-  // 💳 Kindly clear the pending amount at your earliest convenience.  
-  // If you’ve already paid, please ignore this message.
-
-  // Thank you for choosing Uma Vanshi Drinking Water.  
-  // For queries or support, feel free to reach out.
-
-  // 🙏 Regards,  
-  // *Uma Vanshi Drinking Water*
-  //     `;
-
-  //     const encodedMsg = encodeURIComponent(message);
-  //     window.open(`https://wa.me/91${customer.phone}?text=${encodedMsg}`, '_blank');
-  //   };
-
   const summary = getSummary();
 
   return (
-    <div className="container py-4">
-      <h3 className="mb-4">📋 Deliveries</h3>
+    <div className="container py-5">
+      <h2 className="text-primary fw-bold mb-4 d-flex align-items-center gap-2">
+        📋 View Deliveries
+      </h2>
 
-      {/* 🔷 Summary Box */}
-      <div className="alert alert-info d-flex flex-wrap gap-4 justify-content-between">
-        <div><strong>Total Deliveries:</strong> {summary.totalDeliveries}</div>
-        <div><strong>Total Bottles:</strong> {summary.totalBottles}</div>
-        {/* <div><strong>Total Amount:</strong> ₹{summary.totalAmount}</div> */}
+      {/* Summary */}
+      <div className="row g-3 mb-4">
+        <div className="col-md-4">
+          <div className="bg-light p-3 rounded shadow-sm text-center">
+            <h6 className="text-muted mb-1">Total Deliveries</h6>
+            <h4>{summary.totalDeliveries}</h4>
+          </div>
+        </div>
+        <div className="col-md-4">
+          <div className="bg-light p-3 rounded shadow-sm text-center">
+            <h6 className="text-muted mb-1">Total Bottles</h6>
+            <h4>{summary.totalBottles}</h4>
+          </div>
+        </div>
       </div>
 
-      {/* Month Filter */}
+      {/* Month Selector */}
       <div className="mb-3">
-        <label htmlFor="monthSelect" className="form-label">Select Month:</label>
+        <label htmlFor="monthSelect" className="form-label fw-semibold">Select Month</label>
         <input
           id="monthSelect"
           type="month"
-          className="form-control"
+          className="form-control w-auto"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
         />
       </div>
 
-      {/* Responsive Table */}
+      {/* Delivery Table */}
       <div className="table-responsive">
-        <table className="table table-bordered table-striped align-middle">
-          <thead className="table-light">
+        <table className="table table-hover align-middle">
+          <thead className="table-primary">
             <tr>
               <th>Customer</th>
               <th>Date</th>
               <th>Bottles</th>
-              {/* <th>Amount (₹)</th> */}
-              {/* <th>Status</th> */}
               <th className="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
+            {filteredDeliveries.length === 0 && (
+              <tr>
+                <td colSpan="4" className="text-center text-muted py-4">No deliveries for this month.</td>
+              </tr>
+            )}
             {filteredDeliveries.map((d) => (
               <tr key={d._id}>
-                <td>{customers.find((c) => c._id === d.customerId)?.name || 'Unknown'}</td>
+                <td>{customers.find((c) => c._id === d.customerId)?.name || "Unknown"}</td>
                 <td>{new Date(d.date).toLocaleDateString()}</td>
                 <td>{d.bottles}</td>
-                {/* <td>₹{(d.bottles * (customers.find((c) => c._id === d.customerId)?.ratePerBottle || 0))}</td> */}
-                {/* <td>
-                  <button
-                    className={`btn btn-sm ${d.status === 'Paid' ? 'btn-success' : 'btn-warning'}`}
-                    onClick={() => toggleStatus(d._id, d.status)}
-                  >
-                    {d.status}
-                  </button>
-                </td> */}
                 <td className="text-center">
-                  <div className="d-flex flex-wrap gap-2 justify-content-center">
-                    <button className="btn btn-sm btn-primary" onClick={() => setEditForm(d)}>Edit</button>
-                    <button className="btn btn-sm btn-danger" onClick={() => deleteDelivery(d._id)}>Delete</button>
-                    {/* <button className="btn btn-sm btn-success" onClick={() => sendWhatsApp(d)}>📲 WhatsApp</button> */}
+                  <div className="btn-group">
+                    <button className="btn btn-sm btn-outline-primary" onClick={() => setEditForm(d)}>Edit</button>
+                    <button className="btn btn-sm btn-outline-danger" onClick={() => deleteDelivery(d._id)}>Delete</button>
                   </div>
                 </td>
               </tr>
             ))}
-            {filteredDeliveries.length === 0 && (
-              <tr>
-                <td colSpan="6" className="text-center text-muted">No deliveries for selected month.</td>
-              </tr>
-            )}
           </tbody>
-
         </table>
       </div>
 
       {/* Edit Modal */}
       {editForm && (
-        <div className="modal show d-block" style={{ background: '#00000088' }}>
-          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down" style={{ maxWidth: '500px', width: '100%' }}>
-            <div className="modal-content p-3">
-              <h5 className="mb-3">Edit Delivery</h5>
+        <div className="modal show fade d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content p-4">
+              <h5 className="modal-title mb-3">Edit Delivery</h5>
 
-              {/* Customer Dropdown */}
-              <select
-                className="form-select mb-3"
-                value={editForm.customerId}
-                onChange={(e) => setEditForm({ ...editForm, customerId: e.target.value })}
-              >
-                {customers.map(c => (
-                  <option key={c._id} value={c._id}>{c.name}</option>
-                ))}
-              </select>
+              <div className="mb-3">
+                <label className="form-label">Customer</label>
+                <select
+                  className="form-select"
+                  value={editForm.customerId}
+                  onChange={(e) => setEditForm({ ...editForm, customerId: e.target.value })}
+                >
+                  {customers.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-              {/* Date Input */}
-              <input
-                type="date"
-                className="form-control mb-3"
-                value={editForm.date?.split('T')[0]}
-                onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
-              />
+              <div className="mb-3">
+                <label className="form-label">Date</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={editForm.date?.split("T")[0]}
+                  onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+                />
+              </div>
 
-              {/* Bottles Input */}
-              <input
-                type="number"
-                className="form-control mb-3"
-                value={editForm.bottles}
-                onChange={(e) => setEditForm({ ...editForm, bottles: e.target.value })}
-              />
+              <div className="mb-3">
+                <label className="form-label">Bottles</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={editForm.bottles}
+                  onChange={(e) => setEditForm({ ...editForm, bottles: e.target.value })}
+                />
+              </div>
 
-              {/* Status Dropdown */}
-              <select
-                className="form-select mb-3"
-                value={editForm.status}
-                onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-              >
-                <option value="Unpaid">Unpaid</option>
-                <option value="Paid">Paid</option>
-              </select>
+              <div className="mb-3">
+                <label className="form-label">Status</label>
+                <select
+                  className="form-select"
+                  value={editForm.status}
+                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                >
+                  <option value="Paid">Paid</option>
+                  <option value="Unpaid">Unpaid</option>
+                </select>
+              </div>
 
-              {/* Action Buttons */}
-              <div className="d-flex justify-content-end mt-3">
-                <button className="btn btn-secondary me-2" onClick={() => setEditForm(null)}>Cancel</button>
+              <div className="d-flex justify-content-end gap-2">
+                <button className="btn btn-secondary" onClick={() => setEditForm(null)}>Cancel</button>
                 <button className="btn btn-success" onClick={saveEdit}>Save</button>
               </div>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 };

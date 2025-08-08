@@ -6,7 +6,8 @@ const PORT = process.env.PORT || 5000;
 
 const adminRoutes = require("./routes/adminRoutes");
 const customerRoutes = require("./routes/customerRoutes");
-const deliveryRoutes = require('./routes/deliveryRoutes'); // ✅ Add this
+const deliveryRoutes = require('./routes/deliveryRoutes'); // ✅ Add this\
+const billRoutes = require('./routes/billRoutes'); // ✅ Use the billing routes
 // const billingRoutes = require("./routes/monthlybillsRoutes");
 
 const app = express();
@@ -24,6 +25,7 @@ mongoose
 app.use("/api/admin", adminRoutes);
 app.use("/api/customers", customerRoutes);
 app.use('/api/deliveries', deliveryRoutes); // ✅ Use this
+app.use("/api/bills", billRoutes); // ✅ Use the billing routes
 // app.use("/api/billing", billingRoutes);
 
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

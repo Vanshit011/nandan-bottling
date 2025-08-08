@@ -30,7 +30,7 @@ const MonthSummary = () => {
           },
         }
       );
-      console.log("Summary Data:", res.data);
+      // console.log("Summary Data:", res.data);
       setSummary(res.data);
     } catch (err) {
       console.error("Failed to fetch summary:", err);
@@ -58,7 +58,7 @@ const MonthSummary = () => {
     const message = `
 Dear ${customerName},
 
-🧾 *Uma Vanshi Drinking Water - Monthly Summary*
+🧾 *Drinking Water - Monthly Summary*
 
 Here is your delivery summary for *${month}*:
 
@@ -70,7 +70,7 @@ Please make the payment at your earliest convenience.
 If already paid, kindly ignore this message.
 
 🙏 Thank you,  
-*Uma Vanshi Drinking Water*
+*Drinking Water*
     `;
 
     const encodedMsg = encodeURIComponent(message);

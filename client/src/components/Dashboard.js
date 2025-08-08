@@ -90,6 +90,13 @@ const Dashboard = () => {
             >
               💳 Billing
             </NavLink>
+            <NavLink
+              to="/dashboard/bills"
+              className="nav-link"
+              onClick={() => setMenuOpen(false)}
+            >
+              📄payment details
+            </NavLink>
             <button
               className="btn btn-danger logout-btn"
               onClick={handleLogout}

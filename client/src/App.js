@@ -8,6 +8,7 @@ import CustomerList from './components/CustomerList';
 import AddDelivery from './components/AddDelivery';
 import ViewDeliveries from './components/ViewDeliveries';
 import MonthSummary from './components/MonthSummary';
+import Bills from './components/Bills';
 
 function App() {
   const [_, setDummy] = useState(false); // dummy state just to force re-render on login
@@ -55,6 +56,7 @@ function App() {
           <Route path="add-delivery" element={<AddDelivery />} />
           <Route path="view-deliveries" element={<ViewDeliveries />} />
           <Route path="billing" element={<MonthSummary />} />
+          <Route path="bills" element={<Bills />} />
         </Route>
 
         {/* Catch all - redirect unknown paths to login */}

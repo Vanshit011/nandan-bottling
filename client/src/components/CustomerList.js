@@ -6,53 +6,70 @@ const CustomerList = () => {
   const [customers, setCustomers] = useState([]);
   const [editCustomer, setEditCustomer] = useState(null);
   const [form, setForm] = useState({ name: '', phone: '', rate: '' });
-  const [toast, setToast] = useState({ show: false, message: '' });
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+  const token = localStorage.getItem("token");
+  const config = { headers: { Authorization: `Bearer ${token}` } };
+
+  const normalizePhone = (phone) =>
+    phone.replace(/\s/g, '').replace(/^(\+91)/, '').replace(/^0+/, '');
 
   const fetchCustomers = () => {
-    axios.get('https://api-nandan-node.onrender.com/api/customers')
+    axios
+      .get('https://api-nandan-node.onrender.com/api/customers', config)
       .then((res) => setCustomers(res.data))
       .catch((err) => console.error('Fetch Error:', err));
   };
 
   useEffect(() => {
+    if (!token) {
+      alert("Please log in first");
+      return;
+    }
     fetchCustomers();
   }, []);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
-        await axios.delete(`https://api-nandan-node.onrender.com/api/customers/${id}`);
-        setToast({ show: true, message: '✅ Customer Deleted Successfully!' });
+        await axios.delete(`https://api-nandan-node.onrender.com/api/customers/${id}`, config);
+        triggerToast('✅ Customer Deleted Successfully!', 'success');
         fetchCustomers();
       } catch (err) {
-        setToast({ show: true, message: '❌ Failed to Delete Customer' });
+        triggerToast('❌ Failed to Delete Customer', 'danger');
       }
     }
   };
 
   const openEditModal = (customer) => {
     setEditCustomer(customer);
-    setForm({ name: customer.name, phone: customer.phone, rate: customer.rate });
+    setForm({
+      name: customer.name,
+      phone: customer.phone,
+      rate: customer.rate
+    });
   };
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`https://api-nandan-node.onrender.com/api/customers/${editCustomer._id}`, form);
+      await axios.put(
+        `https://api-nandan-node.onrender.com/api/customers/${editCustomer._id}`,
+        { ...form, phone: normalizePhone(form.phone) },
+        config
+      );
       setEditCustomer(null);
-      setToast({ show: true, message: '✅ Customer Updated Successfully!' });
+      triggerToast('✅ Customer Updated Successfully!', 'success');
       fetchCustomers();
     } catch (err) {
-      setToast({ show: true, message: '❌ Failed to Update Customer' });
+      triggerToast('❌ Failed to Update Customer', 'danger');
     }
   };
 
-  useEffect(() => {
-    if (toast.show) {
-      const timer = setTimeout(() => setToast({ show: false, message: '' }), 2500);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
+  const triggerToast = (message, type) => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 2500);
+  };
 
   return (
     <div className="card shadow-sm bg-white">
@@ -100,9 +117,9 @@ const CustomerList = () => {
         </div>
       </div>
 
-      {/* ✅ Edit Modal */}
+      {/* Edit Modal */}
       {editCustomer && (
-        <div className="modal show fade d-block" tabIndex="-1">
+        <div className="modal show fade d-block" tabIndex="-1" style={{ background: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog">
             <div className="modal-content">
               <form onSubmit={handleEditSubmit}>
@@ -154,19 +171,19 @@ const CustomerList = () => {
         </div>
       )}
 
-      {/* ✅ Toast */}
+      {/* Toast */}
       {toast.show && (
         <div
-          className="toast show position-fixed bottom-0 end-0 m-3"
+          className={`toast show position-fixed bottom-0 end-0 m-3 text-white bg-${toast.type}`}
           role="alert"
           aria-live="assertive"
           aria-atomic="true"
           style={{ zIndex: 9999 }}
         >
-          <div className="toast-header bg-success text-white">
-            <strong className="me-auto">Notification</strong>
+          <div className="toast-header bg-transparent border-0">
+            <strong className="me-auto">{toast.type === 'success' ? '✅ Success' : '⚠️ Error'}</strong>
           </div>
-          <div className="toast-body">{toast.message}</div>
+          <div className="toast-body fw-semibold">{toast.message}</div>
         </div>
       )}
     </div>

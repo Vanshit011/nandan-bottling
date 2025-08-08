@@ -12,13 +12,13 @@ const deliverySchema = new mongoose.Schema({
   },
   amount: {
     type: Number,
-    required: true   // ✅ Add this line
+    required: true
   },
   date: {
     type: Date,
     required: true
   },
- 
+  companyId: { type: String, required: true } // link to company, not just admin
 }, { timestamps: true });
 
 module.exports = mongoose.model('Delivery', deliverySchema);

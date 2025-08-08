@@ -24,40 +24,51 @@ const AddDelivery = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Get companyId and token from localStorage
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyId");
+
+    if (!token || !companyId) {
+      setToast({ message: "Not authorized. Please login again.", type: "error" });
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+
     const payload = {
       customerId: selectedCustomer,
       date: deliveryDate,
-      bottles: bottlesDelivered,
+      bottles: Number(bottlesDelivered),
+      companyId,  // Add companyId here
     };
 
-    console.log("Sending delivery:", payload);
-
     try {
-      const response = await axios.post("https://api-nandan-node.onrender.com/api/deliveries", payload);
-    //   console.log("Delivery saved:", response.data);
+      const response = await axios.post(
+        "https://api-nandan-node.onrender.com/api/deliveries",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,  // Attach token here
+          },
+        }
+      );
 
-      // Show toast message
-      setToast("Delivery added successfully!");
-
-      // Reset form fields
+      setToast({ message: "Delivery added successfully!", type: "success" });
       setSelectedCustomer("");
       setDeliveryDate("");
       setBottlesDelivered("");
-
-      // Hide toast after 2 seconds
       setTimeout(() => setToast(null), 2000);
-
     } catch (error) {
       console.error("Error saving delivery:", error.response?.data || error.message);
-      setToast("Error saving delivery");
+      setToast({ message: "Error saving delivery", type: "error" });
       setTimeout(() => setToast(null), 2000);
     }
   };
 
+
   return (
     <div className="p-4 max-w-md mx-auto relative">
       <h2 className="text-xl font-bold mb-4">Add Delivery</h2>
-      
+
       {toast && (
         <div className="fixed top-4 right-4 bg-green-500 text-black px-4 py-2 rounded shadow">
           {toast}

@@ -8,16 +8,18 @@ const AddCustomer = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
 
-  const normalizePhone = (phone) => {
-    return phone
-      .replace(/\s/g, '')
-      .replace(/^(\+91)/, '')
-      .replace(/^0+/, '');
-  };
+  const token = localStorage.getItem('token');
 
-  const validatePhone = (phone) => {
-    const cleaned = normalizePhone(phone);
-    return /^[0-9]{10}$/.test(cleaned);
+  const normalizePhone = (phone) =>
+    phone.replace(/\s/g, '').replace(/^(\+91)/, '').replace(/^0+/, '');
+
+  const validatePhone = (phone) => /^[0-9]{10}$/.test(normalizePhone(phone));
+
+  const triggerToast = (message, type) => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2500);
   };
 
   const handleSubmit = async (e) => {
@@ -31,7 +33,12 @@ const AddCustomer = () => {
     }
 
     try {
-      const res = await axios.get('https://api-nandan-node.onrender.com/api/customers');
+      // Check duplicate
+      const res = await axios.get(
+        'https://api-nandan-node.onrender.com/api/customers',
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
       const exists = res.data.some(
         (cust) => cust.name.trim().toLowerCase() === form.name.trim().toLowerCase()
       );
@@ -41,8 +48,12 @@ const AddCustomer = () => {
         return;
       }
 
-      const payload = { ...form, phone: normalizedPhone };
-      await axios.post('https://api-nandan-node.onrender.com/api/customers', payload);
+      // Add customer
+      await axios.post(
+        'https://api-nandan-node.onrender.com/api/customers',
+        { ...form, phone: normalizedPhone },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       setForm({ name: '', phone: '', rate: '' });
       triggerToast('✅ Customer Added Successfully!', 'success');
@@ -52,25 +63,13 @@ const AddCustomer = () => {
     }
   };
 
-  const triggerToast = (message, type) => {
-    setToastMessage(message);
-    setToastType(type);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 2500);
-  };
-
   const handlePickContact = async () => {
     try {
       if (!('contacts' in navigator && 'ContactsManager' in window)) {
         alert("Your browser doesn't support contact picker.");
         return;
       }
-
-      const props = ['name', 'tel'];
-      const opts = { multiple: false };
-
-      const contacts = await navigator.contacts.select(props, opts);
-
+      const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
       if (contacts.length > 0) {
         const selected = contacts[0];
         setForm({
@@ -92,7 +91,6 @@ const AddCustomer = () => {
           <div className="card shadow-sm border-0">
             <div className="card-body p-4">
               <h3 className="text-center text-primary mb-4">🚰 Add New Customer</h3>
-
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label fw-semibold">Customer Name</label>
@@ -103,17 +101,14 @@ const AddCustomer = () => {
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     required
                   />
-                  
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary w-100 mb-3"
-                  onClick={handlePickContact}
-                >
-                  📇 Select From Mobile Contacts
-                </button>
-
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary w-100 mt-2"
+                    onClick={handlePickContact}
+                  >
+                    📇 Select From Mobile Contacts
+                  </button>
                 </div>
-
                 <div className="mb-3">
                   <label className="form-label fw-semibold">Phone Number</label>
                   <input
@@ -124,7 +119,6 @@ const AddCustomer = () => {
                     required
                   />
                 </div>
-
                 <div className="mb-3">
                   <label className="form-label fw-semibold">Rate per Bottle (₹)</label>
                   <input
@@ -136,7 +130,6 @@ const AddCustomer = () => {
                     required
                   />
                 </div>
-
                 <button type="submit" className="btn btn-success w-100 shadow">
                   ➕ Add Customer
                 </button>
@@ -146,13 +139,11 @@ const AddCustomer = () => {
         </div>
       </div>
 
-      {/* ✅ Toast Message */}
+      {/* Toast */}
       {showToast && (
         <div
           className={`toast show position-fixed bottom-0 end-0 m-3 text-white bg-${toastType}`}
           role="alert"
-          aria-live="assertive"
-          aria-atomic="true"
           style={{ zIndex: 9999 }}
         >
           <div className="toast-header bg-transparent border-0">

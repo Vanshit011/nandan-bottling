@@ -18,6 +18,7 @@ const deliverySchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  
   companyId: { type: String, required: true } // link to company, not just admin
 }, { timestamps: true });
 

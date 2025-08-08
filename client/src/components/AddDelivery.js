@@ -1,20 +1,37 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AddDelivery = () => {
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState("");
-  const [deliveryDate, setDeliveryDate] = useState("");
+  // Set default date to today's date in yyyy-mm-dd format
+  const todayDate = new Date().toISOString().split("T")[0];
+  const [deliveryDate, setDeliveryDate] = useState(todayDate);
   const [bottlesDelivered, setBottlesDelivered] = useState("");
-  const [toast, setToast] = useState(null); // for success message
+  const [toast, setToast] = useState(null); // { message: '', type: 'success' | 'danger' }
 
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const res = await axios.get("https://api-nandan-node.onrender.com/api/customers");
+        const token = localStorage.getItem("token");
+        const companyId = localStorage.getItem("companyId");
+        if (!token || !companyId) {
+          setToast({ message: "Not authorized. Please login again.", type: "danger" });
+          return;
+        }
+        const res = await axios.get(
+          `https://api-nandan-node.onrender.com/api/customers?companyId=${companyId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         setCustomers(res.data);
       } catch (err) {
         console.error("Error fetching customers:", err);
+        setToast({ message: "Failed to fetch customers", type: "danger" });
       }
     };
 
@@ -24,12 +41,11 @@ const AddDelivery = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Get companyId and token from localStorage
     const token = localStorage.getItem("token");
     const companyId = localStorage.getItem("companyId");
 
     if (!token || !companyId) {
-      setToast({ message: "Not authorized. Please login again.", type: "error" });
+      setToast({ message: "Not authorized. Please login again.", type: "danger" });
       setTimeout(() => setToast(null), 3000);
       return;
     }
@@ -38,91 +54,116 @@ const AddDelivery = () => {
       customerId: selectedCustomer,
       date: deliveryDate,
       bottles: Number(bottlesDelivered),
-      companyId,  // Add companyId here
+      companyId,
     };
 
     try {
-      const response = await axios.post(
+      await axios.post(
         "https://api-nandan-node.onrender.com/api/deliveries",
         payload,
         {
           headers: {
-            Authorization: `Bearer ${token}`,  // Attach token here
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       setToast({ message: "Delivery added successfully!", type: "success" });
       setSelectedCustomer("");
-      setDeliveryDate("");
+      setDeliveryDate(todayDate); // Reset to today after submit
       setBottlesDelivered("");
-      setTimeout(() => setToast(null), 2000);
+      setTimeout(() => setToast(null), 3000);
     } catch (error) {
       console.error("Error saving delivery:", error.response?.data || error.message);
-      setToast({ message: "Error saving delivery", type: "error" });
-      setTimeout(() => setToast(null), 2000);
+      setToast({ message: "Error saving delivery", type: "danger" });
+      setTimeout(() => setToast(null), 3000);
     }
   };
 
-
   return (
-    <div className="p-4 max-w-md mx-auto relative">
-      <h2 className="text-xl font-bold mb-4">Add Delivery</h2>
-
-      {toast && (
-        <div className="fixed top-4 right-4 bg-green-500 text-black px-4 py-2 rounded shadow">
-          {toast}
+    <div className="container py-5">
+      <div className="card shadow-lg rounded-4 mx-auto" style={{ maxWidth: '480px' }}>
+        <div className="card-header bg-primary text-white text-center fw-bold fs-4 rounded-top-4">
+          🚚 Add Delivery
         </div>
-      )}
+        <div className="card-body">
+          {toast && (
+            <div
+              className={`alert alert-${toast.type} alert-dismissible fade show`}
+              role="alert"
+            >
+              {toast.message}
+              <button
+                type="button"
+                className="btn-close"
+                aria-label="Close"
+                onClick={() => setToast(null)}
+              ></button>
+            </div>
+          )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1">Select Customer:</label>
-          <select
-            className="w-full p-2 border"
-            value={selectedCustomer}
-            onChange={(e) => setSelectedCustomer(e.target.value)}
-            required
-          >
-            <option value="">-- Select --</option>
-            {customers.map((customer) => (
-              <option key={customer._id} value={customer._id}>
-                {customer.name}
-              </option>
-            ))}
-          </select>
+          <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+            <div className="mb-3">
+              <label htmlFor="customerSelect" className="form-label fw-semibold">
+                Select Customer
+              </label>
+              <select
+                id="customerSelect"
+                className="form-select"
+                value={selectedCustomer}
+                onChange={(e) => setSelectedCustomer(e.target.value)}
+                required
+              >
+                <option value="">-- Select --</option>
+                {customers.map((customer) => (
+                  <option key={customer._id} value={customer._id}>
+                    {customer.name}
+                  </option>
+                ))}
+              </select>
+              <div className="invalid-feedback">Please select a customer.</div>
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="deliveryDate" className="form-label fw-semibold">
+                Delivery Date
+              </label>
+              <input
+                type="date"
+                id="deliveryDate"
+                className="form-control"
+                value={deliveryDate}
+                onChange={(e) => setDeliveryDate(e.target.value)}
+                required
+              />
+              <div className="invalid-feedback">Please select a delivery date.</div>
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="bottlesDelivered" className="form-label fw-semibold">
+                Number of Bottles
+              </label>
+              <input
+                type="number"
+                id="bottlesDelivered"
+                className="form-control"
+                value={bottlesDelivered}
+                onChange={(e) => setBottlesDelivered(e.target.value)}
+                required
+                min="1"
+              />
+              <div className="invalid-feedback">Please enter a valid number of bottles.</div>
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary w-100 shadow-sm"
+            >
+              Add Delivery
+            </button>
+          </form>
         </div>
-
-        <div>
-          <label className="block mb-1">Delivery Date:</label>
-          <input
-            type="date"
-            className="w-full p-2 border"
-            value={deliveryDate}
-            onChange={(e) => setDeliveryDate(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1">Number of Bottles:</label>
-          <input
-            type="number"
-            className="w-full p-2 border"
-            value={bottlesDelivered}
-            onChange={(e) => setBottlesDelivered(e.target.value)}
-            required
-            min={1}
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Add Delivery
-        </button>
-      </form>
+      </div>
     </div>
   );
 };

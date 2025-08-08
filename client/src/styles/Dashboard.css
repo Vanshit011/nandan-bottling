@@ -1,20 +1,25 @@
-/* Fixed Top Navbar Styles */
+/* Dashboard.css */
 
+/* Reset some default styles */
+* {
+  box-sizing: border-box;
+}
+
+/* Top Navbar */
 .top-navbar {
   position: fixed;
   top: 0;
-  left: 0;
   width: 100%;
   background-color: #007bff; /* Bootstrap primary blue */
   color: white;
   z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .navbar-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -22,86 +27,109 @@
 }
 
 .navbar-brand {
-  font-weight: bold;
+  font-weight: 700;
   font-size: 1.25rem;
   user-select: none;
 }
 
-/* Hamburger Button */
 .navbar-toggle {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   background: none;
   border: none;
   color: white;
   cursor: pointer;
+  display: block;
+  padding: 0.2rem 0.5rem;
 }
 
 /* Navigation Links */
 .navbar-links {
   display: flex;
+  gap: 1.2rem;
   align-items: center;
-  gap: 1rem;
+  transition: max-height 0.3s ease;
 }
 
-/* Link styles */
+/* Hide menu on small by default */
+@media (max-width: 767px) {
+  .navbar-links {
+    overflow: hidden;
+    max-height: 0;
+    flex-direction: column;
+    width: 100%;
+    background-color: #0056b3; /* darker blue */
+    border-radius: 0 0 8px 8px;
+  }
+  .navbar-links.open {
+    max-height: 500px; /* enough height to show all */
+    padding: 0.5rem 0;
+  }
+  .navbar-links .nav-link,
+  .logout-btn {
+    padding: 0.75rem 1rem;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Desktop menu */
+@media (min-width: 768px) {
+  .navbar-toggle {
+    display: none;
+  }
+}
+
+/* Nav links style */
 .nav-link {
   color: white;
+  font-weight: 600;
   text-decoration: none;
   padding: 0.5rem 0.75rem;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
   user-select: none;
 }
 
 .nav-link:hover,
-.nav-link.active {
+.nav-link:focus {
   background-color: rgba(255, 255, 255, 0.2);
+  outline: none;
+}
+
+/* Active NavLink styling using React Router's active class */
+.nav-link.active {
+  background-color: #ffc107; /* Bootstrap warning gold */
+  color: #212529;
+  font-weight: 700;
 }
 
 /* Logout button */
 .logout-btn {
-  background-color: #dc3545; /* Bootstrap danger red */
+  background-color: #dc3545;
   border: none;
-  padding: 0.4rem 0.75rem;
   color: white;
-  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
   user-select: none;
-  transition: background-color 0.3s ease;
 }
 
-.logout-btn:hover {
-  background-color: #c82333;
+.logout-btn:hover,
+.logout-btn:focus {
+  background-color: #b02a37;
+  outline: none;
 }
 
-/* Responsive: Mobile */
-@media (max-width: 767.98px) {
-  .navbar-links {
-    flex-direction: column;
-    width: 100%;
-    display: none;
-    margin-top: 0.5rem;
-  }
-  .navbar-links.open {
-    display: flex;
-  }
-  .nav-link {
-    width: 100%;
-    text-align: center;
-    padding: 0.75rem 0;
-  }
-  .logout-btn {
-    width: 100%;
-    margin-top: 0.5rem;
-  }
-  
-  /* Hide hamburger on desktop */
-  .d-md-none {
-    display: inline-block;
-  }
-}
-
-/* Push content down so it doesn't go under fixed navbar */
+/* Main content below navbar */
 .dashboard-content {
-  padding-top: 60px; /* Adjust based on navbar height */
+  margin-top: 60px; /* height of navbar */
+  min-height: calc(100vh - 60px);
+  background-color: #f8f9fa; /* light gray bg */
+}
+
+/* Container inside main content */
+.dashboard-content .container {
+  max-width: 1200px;
 }

@@ -1,28 +1,45 @@
-// src/components/Dashboard.js
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import '../styles/Dashboard.css';
-import '../styles/Sidebar.css';  // You can rename this to Navbar.css or keep it
+import '../styles/Sidebar.css';
 
 const Dashboard = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const navRef = useRef(null); // Ref for the nav element
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    window.location.href = '/';  // Redirect + full page reload
+    window.location.href = '/';
   };
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
+  // Close menu if click outside nav when menu is open
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    function handleClickOutside(event) {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpen]);
+
   return (
     <>
       {/* Fixed Top Navbar */}
       <header className="top-navbar">
         <div className="navbar-container">
-          <h4 className="navbar-brand">💧 Uma Vanshi Drinking Water</h4>
+          <h4 className="navbar-brand">💧Drinking Water</h4>
 
           {/* Hamburger menu button for mobile */}
           <button
@@ -34,7 +51,10 @@ const Dashboard = () => {
           </button>
 
           {/* Navigation Links */}
-          <nav className={`navbar-links ${menuOpen ? 'open' : ''}`}>
+          <nav
+            ref={navRef}
+            className={`navbar-links ${menuOpen ? 'open' : ''}`}
+          >
             <NavLink
               to="/dashboard/customers"
               className="nav-link"
@@ -72,10 +92,7 @@ const Dashboard = () => {
             </NavLink>
             <button
               className="btn btn-danger logout-btn"
-              onClick={() => {
-                localStorage.removeItem('token');
-                window.location.href = '/';
-              }}
+              onClick={handleLogout}
             >
               🚪 Logout
             </button>

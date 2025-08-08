@@ -1,6 +1,6 @@
-// src/App.js
-import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useState } from 'react';
+
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import AddCustomer from './components/AddCustomer';
@@ -10,28 +10,37 @@ import ViewDeliveries from './components/ViewDeliveries';
 import MonthSummary from './components/MonthSummary';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const [_, setDummy] = useState(false); // dummy state just to force re-render on login
+
+  // This function is passed to Login component to update auth state on successful login
+  const onLogin = () => {
+    setDummy((prev) => !prev); // just toggle dummy state to re-render App
+  };
 
   const ProtectedRoute = ({ children }) => {
-    return isLoggedIn ? children : <Navigate to="/" replace />;
+    const token = localStorage.getItem('token');
+    return token ? children : <Navigate to="/" replace />;
+  };
+
+  const PublicRoute = ({ children }) => {
+    const token = localStorage.getItem('token');
+    return token ? <Navigate to="/dashboard/customers" replace /> : children;
   };
 
   return (
     <Router>
       <Routes>
-        {/* Login Page */}
+        {/* Public route - login page */}
         <Route
           path="/"
           element={
-            isLoggedIn ? (
-              <Navigate to="/dashboard/customers" replace />
-            ) : (
-              <Login onLogin={() => setIsLoggedIn(true)} />
-            )
+            <PublicRoute>
+              <Login onLogin={onLogin} />
+            </PublicRoute>
           }
         />
 
-        {/* Dashboard layout wrapper */}
+        {/* Protected dashboard routes */}
         <Route
           path="/dashboard"
           element={
@@ -47,6 +56,9 @@ function App() {
           <Route path="view-deliveries" element={<ViewDeliveries />} />
           <Route path="billing" element={<MonthSummary />} />
         </Route>
+
+        {/* Catch all - redirect unknown paths to login */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

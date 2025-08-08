@@ -19,7 +19,7 @@ const AddCustomer = () => {
     setToastMessage(message);
     setToastType(type);
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 2500);
+    setTimeout(() => setShowToast(false), 3000);
   };
 
   const handleSubmit = async (e) => {
@@ -33,7 +33,6 @@ const AddCustomer = () => {
     }
 
     try {
-      // Check duplicate
       const res = await axios.get(
         'https://api-nandan-node.onrender.com/api/customers',
         { headers: { Authorization: `Bearer ${token}` } }
@@ -48,7 +47,6 @@ const AddCustomer = () => {
         return;
       }
 
-      // Add customer
       await axios.post(
         'https://api-nandan-node.onrender.com/api/customers',
         { ...form, phone: normalizedPhone },
@@ -88,49 +86,63 @@ const AddCustomer = () => {
     <div className="container py-5">
       <div className="row justify-content-center">
         <div className="col-12 col-md-8 col-lg-6">
-          <div className="card shadow-sm border-0">
+          <div className="card shadow-lg border-0 rounded-4">
+            <div className="card-header bg-primary text-white text-center fs-4 fw-bold rounded-top-4">
+              🚰 Add New Customer
+            </div>
             <div className="card-body p-4">
-              <h3 className="text-center text-primary mb-4">🚰 Add New Customer</h3>
               <form onSubmit={handleSubmit}>
-                <div className="mb-3">
+                <div className="mb-4">
                   <label className="form-label fw-semibold">Customer Name</label>
                   <input
-                    className="form-control border-primary"
+                    className="form-control border-primary shadow-sm"
                     placeholder="Enter customer name"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     required
+                    autoComplete="off"
                   />
                   <button
                     type="button"
-                    className="btn btn-outline-secondary w-100 mt-2"
+                    className="btn btn-outline-secondary w-100 mt-3 shadow-sm"
                     onClick={handlePickContact}
+                    title="Pick contact from your device"
                   >
                     📇 Select From Mobile Contacts
                   </button>
                 </div>
-                <div className="mb-3">
+
+                <div className="mb-4">
                   <label className="form-label fw-semibold">Phone Number</label>
                   <input
-                    className="form-control border-primary"
+                    className="form-control border-primary shadow-sm"
                     placeholder="Enter phone number"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     required
+                    autoComplete="tel"
+                    inputMode="numeric"
                   />
                 </div>
-                <div className="mb-3">
+
+                <div className="mb-4">
                   <label className="form-label fw-semibold">Rate per Bottle (₹)</label>
                   <input
                     type="number"
-                    className="form-control border-primary"
+                    className="form-control border-primary shadow-sm"
                     placeholder="Enter rate"
                     value={form.rate}
                     onChange={(e) => setForm({ ...form, rate: e.target.value })}
                     required
+                    min="1"
+                    step="0.01"
                   />
                 </div>
-                <button type="submit" className="btn btn-success w-100 shadow">
+
+                <button
+                  type="submit"
+                  className="btn btn-success w-100 shadow fw-semibold fs-5"
+                >
                   ➕ Add Customer
                 </button>
               </form>
@@ -142,16 +154,22 @@ const AddCustomer = () => {
       {/* Toast */}
       {showToast && (
         <div
-          className={`toast show position-fixed bottom-0 end-0 m-3 text-white bg-${toastType}`}
+          className={`toast show position-fixed bottom-0 end-0 m-3 text-white bg-${toastType} border-0 shadow-lg`}
           role="alert"
-          style={{ zIndex: 9999 }}
+          style={{ zIndex: 9999, minWidth: '250px' }}
         >
           <div className="toast-header bg-transparent border-0">
-            <strong className="me-auto">
+            <strong className="me-auto fs-6">
               {toastType === 'success' ? '✅ Success' : '⚠️ Error'}
             </strong>
+            <button
+              type="button"
+              className="btn-close btn-close-white"
+              aria-label="Close"
+              onClick={() => setShowToast(false)}
+            ></button>
           </div>
-          <div className="toast-body fw-semibold">{toastMessage}</div>
+          <div className="toast-body fw-semibold fs-6">{toastMessage}</div>
         </div>
       )}
     </div>

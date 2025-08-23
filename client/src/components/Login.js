@@ -6,6 +6,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false); // 🔹 Added loading state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,12 +19,13 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setLoading(true); // 🔹 Start loading
 
     try {
-      const response = await axios.post("https://api-nandan-node.onrender.com/api/admin/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "https://api-nandan-node.onrender.com/api/admin/login",
+        { email, password }
+      );
 
       const { token, companyId } = response.data;
 
@@ -36,13 +38,15 @@ const Login = () => {
       }
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false); // 🔹 Stop loading
     }
   };
 
   return (
     <div
       className="d-flex align-items-center justify-content-center vh-100"
-      style={{ backgroundColor: "#e3f2fd" }} // Light blue background
+      style={{ backgroundColor: "#e3f2fd" }}
     >
       <div className="card shadow" style={{ maxWidth: "380px", width: "100%" }}>
         <div className="card-body p-4 bg-primary text-white rounded">
@@ -89,8 +93,13 @@ const Login = () => {
               />
             </div>
 
-            <button type="submit" className="btn btn-light w-100 fw-bold">
-              Login
+            {/* 🔹 Button with loading state */}
+            <button
+              type="submit"
+              className="btn btn-light w-100 fw-bold"
+              disabled={loading} // disable when processing
+            >
+              {loading ? "Processing...." : "Login"}
             </button>
           </form>
         </div>

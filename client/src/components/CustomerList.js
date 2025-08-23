@@ -77,10 +77,10 @@ const CustomerList = () => {
         <div className="card-header bg-primary text-white fw-bold fs-4 text-center rounded-top-4">
           👥 Customer List
         </div>
-        <div className="card-body">
+        <div className="card-body pl-0">
           <div className="table-responsive">
-            <table className="table table-hover table-bordered align-middle mb-0">
-              <thead className="table-primary text-center">
+            <table className="table table-hover table-bordered align-middle mb-0  ">
+              <thead className="table-primary text-center ">
                 <tr>
                   <th style={{ width: '5%' }}>#</th>
                   <th style={{ width: '30%' }}>Name</th>

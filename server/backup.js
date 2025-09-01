@@ -6,10 +6,10 @@ const cron = require('node-cron');
 
 // Access variables from environment
 const DB_NAME = process.env.DB_NAME;
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.MONGODB_LIVE;
 const ARCHIVE_PATH = path.join(__dirname, 'backup', `${DB_NAME}.gzip`); // Still dynamic based on DB_NAME
 
-// Schedule backup daily at 10 PM (22:00 in 24-hour format)
+// Schedule backup daily at 10 AM (10:00 in 24-hour format)
 cron.schedule('0 0 10 * * *', () => backupMongoDB());
 
 function backupMongoDB() {
@@ -36,4 +36,4 @@ function backupMongoDB() {
 }
 
 // Keep the script running for cron
-console.log('Backup scheduler started. Waiting for 10 PM...');
+console.log('Backup scheduler started. Waiting for 10 AM...');

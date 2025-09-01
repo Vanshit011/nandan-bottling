@@ -1,17 +1,20 @@
+require('dotenv').config(); // Load environment variables from .env file
+
 const { spawn } = require('child_process');
 const path = require('path');
 const cron = require('node-cron');
 
-const DB_NAME = 'test'; // Replace with your DB name
-const ARCHIVE_PATH = path.join(__dirname, 'backup', `${DB_NAME}.gzip`);
-const MONGO_URI = 'mongodb+srv://vanshitpatel10:Vanshit12345@cluster1.mlt3qae.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1';
+// Access variables from environment
+const DB_NAME = process.env.DB_NAME;
+const MONGO_URI = process.env.MONGO_URI;
+const ARCHIVE_PATH = path.join(__dirname, 'backup', `${DB_NAME}.gzip`); // Still dynamic based on DB_NAME
 
 // Schedule backup daily at 10 PM (22:00 in 24-hour format)
 cron.schedule('0 0 22 * * *', () => backupMongoDB());
 
 function backupMongoDB() {
   const child = spawn('mongodump', [
-    `--uri=${MONGO_URI}/${DB_NAME}`,
+    `--uri=${MONGO_URI}/${DB_NAME}`, // Append DB_NAME to URI here
     `--archive=${ARCHIVE_PATH}`,
     '--gzip',
   ]);

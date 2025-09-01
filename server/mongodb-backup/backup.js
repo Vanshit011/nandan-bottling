@@ -3,14 +3,24 @@ require('dotenv').config(); // Load environment variables from .env file
 const { spawn } = require('child_process');
 const path = require('path');
 const cron = require('node-cron');
+const fs = require('fs'); // For checking/creating directories
 
 // Access variables from environment
 const DB_NAME = process.env.DB_NAME;
 const MONGO_URI = process.env.MONGODB_LIVE;
-const ARCHIVE_PATH = path.join(__dirname, 'backup', `${DB_NAME}.gzip`); // Still dynamic based on DB_NAME
+const BACKUP_DIR = path.join(__dirname, 'backups'); // Matches your folder (plural)
+const ARCHIVE_PATH = path.join(BACKUP_DIR, `${DB_NAME}-${new Date().toISOString()}.gzip`); // Adds timestamp to avoid overwriting
+
+// Create backups directory if it doesn't exist
+if (!fs.existsSync(BACKUP_DIR)) {
+  fs.mkdirSync(BACKUP_DIR);
+  console.log('Backups directory created:', BACKUP_DIR);
+} else {
+  console.log('Backups directory already exists:', BACKUP_DIR);
+}
 
 // Schedule backup daily at 10 AM (10:00 in 24-hour format)
-cron.schedule('0 0 10 * * *', () => backupMongoDB());
+cron.schedule('0 20 10 * * *', () => backupMongoDB());
 
 function backupMongoDB() {
   const child = spawn('mongodump', [

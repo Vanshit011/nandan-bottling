@@ -10,7 +10,7 @@ const MONGO_URI = process.env.MONGO_URI;
 const ARCHIVE_PATH = path.join(__dirname, 'backup', `${DB_NAME}.gzip`); // Still dynamic based on DB_NAME
 
 // Schedule backup daily at 10 PM (22:00 in 24-hour format)
-cron.schedule('0 0 22 * * *', () => backupMongoDB());
+cron.schedule('0 0 10 * * *', () => backupMongoDB());
 
 function backupMongoDB() {
   const child = spawn('mongodump', [

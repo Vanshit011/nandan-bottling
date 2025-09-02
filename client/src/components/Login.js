@@ -12,7 +12,7 @@ const Login = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token && window.location.pathname !== "/dashboard") {
-      navigate("/dashboard/customers");
+      navigate("/dashboard/add-delivery");
     }
   }, [navigate]);
 

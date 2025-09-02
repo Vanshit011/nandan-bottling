@@ -25,7 +25,7 @@ function App() {
 
   const PublicRoute = ({ children }) => {
     const token = localStorage.getItem('token');
-    return token ? <Navigate to="/dashboard/customers" replace /> : children;
+    return token ? <Navigate to="/dashboard/add-delivery" replace /> : children;
   };
 
   return (

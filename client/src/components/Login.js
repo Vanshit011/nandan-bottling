@@ -32,7 +32,7 @@ const Login = () => {
       if (token && companyId) {
         localStorage.setItem("token", token);
         localStorage.setItem("companyId", companyId);
-        navigate("/dashboard/customers");
+        navigate("/dashboard/add-delivery");
       } else {
         setError("Invalid response from server");
       }

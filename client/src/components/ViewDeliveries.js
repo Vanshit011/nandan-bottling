@@ -176,7 +176,7 @@ const ViewDeliveries = () => {
 
       {/* Delivery Table */}
       <div className="table-responsive">
-        <table className="table table-hover align-middle">
+        <table className="table table-hover table-bordered align-middle mb-0 table-striped">
           <thead className="table-primary">
             <tr>
               <th>Customer</th>

@@ -8,6 +8,11 @@ const MonthSummary = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [error, setError] = useState(null);
 
+  // Your provided values (SaaS: fetch dynamically from API)
+  const UPI_ID = "9824458265@okbizaxis";
+  const SUPPORT_NUMBER = "+91 9824458265";
+  const PHONE_PAY_NUMBER = "9824458265"; // Added based on your query
+
   const fetchSummary = async (month, year) => {
     setLoading(true);
     setError(null);
@@ -30,7 +35,6 @@ const MonthSummary = () => {
           },
         }
       );
-      // console.log("Summary Data:", res.data);
       setSummary(res.data);
     } catch (err) {
       console.error("Failed to fetch summary:", err);
@@ -66,7 +70,13 @@ Here is your delivery summary for *${month}*:
 • Bottles: ${totalBottles}
 • 💰 *Total Amount: ₹${totalAmount}*
 
-Please make the payment at your earliest convenience.  
+Please make the payment using:
+- UPI ID: ${UPI_ID}
+- phone number pay : ${PHONE_PAY_NUMBER}
+
+For any queries, feel free to reach out:
+- Support Number: ${SUPPORT_NUMBER} (for queries)
+
 If already paid, kindly ignore this message.
 
 🙏 Thank you,  

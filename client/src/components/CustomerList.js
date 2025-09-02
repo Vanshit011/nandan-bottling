@@ -72,14 +72,14 @@ const CustomerList = () => {
   };
 
   return (
-    <div className="container py-5">
+    <div className="container py-2">
       <div className="card shadow-lg border-0 rounded-4">
         <div className="card-header bg-primary text-white fw-bold fs-4 text-center rounded-top-4">
           👥 Customer List
         </div>
         <div className="card-body pl-0">
           <div className="table-responsive">
-            <table className="table table-hover table-bordered align-middle mb-0  ">
+            <table className="table table-hover table-bordered align-middle mb-0 table-striped">
               <thead className="table-primary text-center ">
                 <tr>
                   <th style={{ width: '5%' }}>#</th>
@@ -99,7 +99,7 @@ const CustomerList = () => {
                 ) : (
                   customers.map((c, idx) => (
                     <tr key={c._id}>
-                      <td className="text-center">{idx + 1}</td>
+                      <td className="text-center bg-grey">{idx + 1}</td>
                       <td>{c.name}</td>
                       <td>{c.phone}</td>
                       <td className="text-center">₹{c.rate}</td>

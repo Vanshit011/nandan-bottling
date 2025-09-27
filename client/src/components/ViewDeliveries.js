@@ -16,21 +16,13 @@ const ViewDeliveries = () => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [editDelivery, setEditDelivery] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    filterByMonth();
-  }, [deliveries, selectedMonth]);
+  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { filterByMonth(); }, [deliveries, selectedMonth]);
 
   const fetchData = async () => {
     const token = localStorage.getItem("token");
     const companyId = localStorage.getItem("companyId");
-    if (!token || !companyId) {
-      setToast({ message: "Not authorized. Please login again.", type: "danger" });
-      return;
-    }
+    if (!token || !companyId) return setToast({ message: "Not authorized", type: "danger" });
 
     try {
       const [custRes, deliveryRes] = await Promise.all([
@@ -40,7 +32,7 @@ const ViewDeliveries = () => {
       setCustomers(custRes.data || []);
       setDeliveries((deliveryRes.data || []).reverse());
     } catch (err) {
-      console.error("Error fetching data:", err);
+      console.error(err);
       setToast({ message: "Failed to fetch data", type: "danger" });
     }
   };
@@ -55,18 +47,26 @@ const ViewDeliveries = () => {
     setFilteredDeliveries(filtered);
   };
 
-  const getDeliveriesForCustomer = (customerId) => {
-    return filteredDeliveries.filter(d => (typeof d.customerId === "object" ? d.customerId?._id : d.customerId) === customerId);
+  const getDeliveriesForCustomer = (customerId) =>
+    filteredDeliveries.filter(d => (typeof d.customerId === "object" ? d.customerId?._id : d.customerId) === customerId);
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "No Date";
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
   };
 
   const customersThisMonth = Array.from(new Set(filteredDeliveries.map(d => typeof d.customerId === "object" ? d.customerId?._id : d.customerId)))
     .map(id => customers.find(c => c._id === id))
     .filter(Boolean);
 
-  // PDF generation
   const downloadPDF = (customer) => {
     const custDeliveries = getDeliveriesForCustomer(customer._id);
     const totalBottles = custDeliveries.reduce((sum, d) => sum + (d.bottles || 0), 0);
+
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text("Customer Deliveries Report", 14, 20);
@@ -74,7 +74,7 @@ const ViewDeliveries = () => {
     doc.text(`Customer: ${customer.name}`, 14, 30);
     doc.text(`Month: ${selectedMonth}`, 14, 38);
 
-    const rows = custDeliveries.map((d, i) => [i + 1, d.date ? new Date(d.date).toLocaleDateString() : "No Date", d.bottles ?? 0]);
+    const rows = custDeliveries.map((d, i) => [i + 1, formatDate(d.date), d.bottles ?? ""]);
     autoTable(doc, { head: [["#", "Date", "Bottles"]], body: rows, startY: 50 });
 
     const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : 50 + rows.length * 20;
@@ -122,7 +122,6 @@ const ViewDeliveries = () => {
     <div className="container py-5">
       <h2 className="text-primary fw-bold mb-4">📋 View Deliveries</h2>
 
-      {/* Toast */}
       {toast && (
         <div className={`alert alert-${toast.type} alert-dismissible fade show position-fixed top-0 end-0 m-3`} role="alert" style={{ zIndex: 1050, cursor: "pointer" }} onClick={() => setToast(null)}>
           {toast.message}
@@ -130,13 +129,11 @@ const ViewDeliveries = () => {
         </div>
       )}
 
-      {/* Month selector */}
       <div className="mb-3">
         <label className="form-label fw-semibold">Select Month</label>
         <input type="month" className="form-control w-auto" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
       </div>
 
-      {/* Customer table */}
       <div className="table-responsive">
         <table className="table table-bordered table-hover align-middle">
           <thead className="table-primary">
@@ -170,7 +167,6 @@ const ViewDeliveries = () => {
         </table>
       </div>
 
-      {/* Modal: deliveries for selected customer */}
       {selectedCustomer && (
         <div className="modal show fade d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} onClick={() => setSelectedCustomer(null)}>
           <div className="modal-dialog modal-lg modal-dialog-centered" onClick={e => e.stopPropagation()}>
@@ -187,24 +183,8 @@ const ViewDeliveries = () => {
                 <tbody>
                   {getDeliveriesForCustomer(selectedCustomer._id).map(d => (
                     <tr key={d._id}>
-                      <td>{editDelivery && editDelivery._id === d._id ? <input type="date" className="form-control" value={editDelivery.date?.split("T")[0] || ""} onChange={e => setEditDelivery({ ...editDelivery, date: e.target.value })} /> : d.date ? new Date(d.date).toLocaleDateString() : "No Date"}</td>
-                      <td>
-                        {editDelivery && editDelivery._id === d._id ? (
-                          <input
-                            type="number"
-                            className="form-control"
-                            value={editDelivery.bottles || ""} // <-- show empty string if undefined/null
-                            onChange={(e) =>
-                              setEditDelivery({ ...editDelivery, bottles: Number(e.target.value) })
-                            }
-                            min="0"
-                          />
-                        ) : d.bottles != null ? (
-                          d.bottles
-                        ) : (
-                          "" // <-- empty if no value
-                        )}
-                      </td>
+                      <td>{editDelivery && editDelivery._id === d._id ? <input type="date" className="form-control" value={editDelivery.date?.split("T")[0] || ""} onChange={e => setEditDelivery({ ...editDelivery, date: e.target.value })} /> : formatDate(d.date)}</td>
+                      <td>{editDelivery && editDelivery._id === d._id ? <input type="number" className="form-control" value={editDelivery.bottles || ""} onChange={e => setEditDelivery({ ...editDelivery, bottles: Number(e.target.value) })} min="0" /> : (d.bottles ?? "")}</td>
                       <td className="text-center">
                         {editDelivery && editDelivery._id === d._id ? (
                           <>
@@ -231,7 +211,6 @@ const ViewDeliveries = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

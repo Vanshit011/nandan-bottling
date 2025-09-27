@@ -62,7 +62,7 @@ const MonthSummary = () => {
     const message = `
 Dear ${customerName},
 
-🧾 *Drinking Water - Monthly Summary*
+🧾 *UmaVanshi Drinking Water - Monthly Summary*
 
 Here is your delivery summary for *${month}*:
 
@@ -80,7 +80,7 @@ For any queries, feel free to reach out:
 If already paid, kindly ignore this message.
 
 🙏 Thank you,  
-*Drinking Water*
+*UmaVanshi Drinking Water*
     `;
 
     const encodedMsg = encodeURIComponent(message);

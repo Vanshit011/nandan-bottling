@@ -188,7 +188,23 @@ const ViewDeliveries = () => {
                   {getDeliveriesForCustomer(selectedCustomer._id).map(d => (
                     <tr key={d._id}>
                       <td>{editDelivery && editDelivery._id === d._id ? <input type="date" className="form-control" value={editDelivery.date?.split("T")[0] || ""} onChange={e => setEditDelivery({ ...editDelivery, date: e.target.value })} /> : d.date ? new Date(d.date).toLocaleDateString() : "No Date"}</td>
-                      <td>{editDelivery && editDelivery._id === d._id ? <input type="number" className="form-control" value={editDelivery.bottles ?? 0} onChange={e => setEditDelivery({ ...editDelivery, bottles: Number(e.target.value) })} /> : d.bottles ?? 0}</td>
+                      <td>
+                        {editDelivery && editDelivery._id === d._id ? (
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={editDelivery.bottles || ""} // <-- show empty string if undefined/null
+                            onChange={(e) =>
+                              setEditDelivery({ ...editDelivery, bottles: Number(e.target.value) })
+                            }
+                            min="0"
+                          />
+                        ) : d.bottles != null ? (
+                          d.bottles
+                        ) : (
+                          "" // <-- empty if no value
+                        )}
+                      </td>
                       <td className="text-center">
                         {editDelivery && editDelivery._id === d._id ? (
                           <>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable"; // import the function and use autoTable(doc, {...})
+import autoTable from "jspdf-autotable";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const ViewDeliveries = () => {
@@ -14,6 +14,7 @@ const ViewDeliveries = () => {
   });
   const [toast, setToast] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [editDelivery, setEditDelivery] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -33,14 +34,8 @@ const ViewDeliveries = () => {
 
     try {
       const [custRes, deliveryRes] = await Promise.all([
-        axios.get(
-          `https://api-nandan-node.onrender.com/api/customers?companyId=${companyId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        ),
-        axios.get(
-          `https://api-nandan-node.onrender.com/api/deliveries?companyId=${companyId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        ),
+        axios.get(`https://api-nandan-node.onrender.com/api/customers?companyId=${companyId}`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`https://api-nandan-node.onrender.com/api/deliveries?companyId=${companyId}`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
       setCustomers(custRes.data || []);
       setDeliveries((deliveryRes.data || []).reverse());
@@ -51,7 +46,7 @@ const ViewDeliveries = () => {
   };
 
   const filterByMonth = () => {
-    const filtered = deliveries.filter((d) => {
+    const filtered = deliveries.filter(d => {
       if (!d?.date) return false;
       const date = new Date(d.date);
       const deliveryMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
@@ -61,94 +56,89 @@ const ViewDeliveries = () => {
   };
 
   const getDeliveriesForCustomer = (customerId) => {
-    return filteredDeliveries.filter((d) => {
-      const id = typeof d.customerId === "object" ? d.customerId?._id : d.customerId;
-      return id === customerId;
-    });
+    return filteredDeliveries.filter(d => (typeof d.customerId === "object" ? d.customerId?._id : d.customerId) === customerId);
   };
 
-  const customersThisMonth = Array.from(
-    new Set(
-      filteredDeliveries.map((d) =>
-        typeof d.customerId === "object" ? d.customerId?._id : d.customerId
-      )
-    )
-  )
-    .map((id) => customers.find((c) => c._id === id))
+  const customersThisMonth = Array.from(new Set(filteredDeliveries.map(d => typeof d.customerId === "object" ? d.customerId?._id : d.customerId)))
+    .map(id => customers.find(c => c._id === id))
     .filter(Boolean);
 
-  // -----------------------
-  // PDF: use autoTable(doc, options)
-  // -----------------------
+  // PDF generation
   const downloadPDF = (customer) => {
     const custDeliveries = getDeliveriesForCustomer(customer._id);
     const totalBottles = custDeliveries.reduce((sum, d) => sum + (d.bottles || 0), 0);
-
-    // Create doc (use pts units by default)
-    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text("Customer Deliveries Report", 40, 40);
+    doc.text("Customer Deliveries Report", 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Customer: ${customer.name}`, 14, 30);
+    doc.text(`Month: ${selectedMonth}`, 14, 38);
 
-    doc.setFontSize(11);
-    doc.text(`Customer: ${customer.name}`, 40, 64);
-    doc.text(`Month: ${selectedMonth}`, 40, 82);
+    const rows = custDeliveries.map((d, i) => [i + 1, d.date ? new Date(d.date).toLocaleDateString() : "No Date", d.bottles ?? 0]);
+    autoTable(doc, { head: [["#", "Date", "Bottles"]], body: rows, startY: 50 });
 
-    // Prepare rows: you can add a serial number column if you want
-    const rows = custDeliveries.map((d, idx) => [
-      idx + 1,
-      d.date ? new Date(d.date).toLocaleDateString() : "No Date",
-      d.bottles ?? 0,
-    ]);
+    const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : 50 + rows.length * 20;
+    doc.text(`Total Deliveries: ${custDeliveries.length}`, 14, finalY + 15);
+    doc.text(`Total Bottles: ${totalBottles}`, 14, finalY + 30);
 
-    // Use autoTable(doc, options) (not doc.autoTable)
-    autoTable(doc, {
-      head: [["#", "Date", "Bottles"]],
-      body: rows,
-      startY: 100,
-      styles: { fontSize: 10, cellPadding: 6 },
-      headStyles: { fillColor: [54, 162, 235], textColor: 255 },
-      theme: "grid",
-    });
+    doc.save(`${customer.name}_deliveries_${selectedMonth}.pdf`);
+  };
 
-    // Get where the table ended
-    const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : 100 + rows.length * 20;
+  const deleteDelivery = async (deliveryId) => {
+    const token = localStorage.getItem("token");
+    if (!token) return setToast({ message: "Not authorized", type: "danger" });
+    if (!window.confirm("Delete this delivery?")) return;
 
-    // Totals below table
-    doc.setFontSize(11);
-    doc.text(`Total Deliveries: ${custDeliveries.length}`, 40, finalY + 20);
-    doc.text(`Total Bottles: ${totalBottles}`, 40, finalY + 36);
+    try {
+      await axios.delete(`https://api-nandan-node.onrender.com/api/deliveries/${deliveryId}`, { headers: { Authorization: `Bearer ${token}` } });
+      fetchData();
+      setToast({ message: "Delivery deleted successfully.", type: "success" });
+    } catch (err) {
+      console.error(err);
+      setToast({ message: "Failed to delete delivery", type: "danger" });
+    }
+  };
 
-    // Save
-    const safeCustomerName = (customer.name || "customer").replace(/\s+/g, "_");
-    doc.save(`${safeCustomerName}_deliveries_${selectedMonth}.pdf`);
+  const saveEditDelivery = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return setToast({ message: "Not authorized", type: "danger" });
+
+    try {
+      await axios.put(`https://api-nandan-node.onrender.com/api/deliveries/${editDelivery._id}`, {
+        customerId: editDelivery.customerId,
+        date: editDelivery.date,
+        bottles: editDelivery.bottles
+      }, { headers: { Authorization: `Bearer ${token}` } });
+      setEditDelivery(null);
+      fetchData();
+      setToast({ message: "Delivery updated successfully", type: "success" });
+    } catch (err) {
+      console.error(err);
+      setToast({ message: "Failed to update delivery", type: "danger" });
+    }
   };
 
   return (
     <div className="container py-5">
-      <h2 className="text-primary fw-bold mb-4 d-flex align-items-center gap-2">📋 View Deliveries</h2>
+      <h2 className="text-primary fw-bold mb-4">📋 View Deliveries</h2>
 
       {/* Toast */}
       {toast && (
-        <div
-          className={`alert alert-${toast.type} alert-dismissible fade show position-fixed top-0 end-0 m-3`}
-          role="alert"
-          style={{ zIndex: 1050, cursor: "pointer", minWidth: "250px" }}
-          onClick={() => setToast(null)}
-        >
+        <div className={`alert alert-${toast.type} alert-dismissible fade show position-fixed top-0 end-0 m-3`} role="alert" style={{ zIndex: 1050, cursor: "pointer" }} onClick={() => setToast(null)}>
           {toast.message}
           <button type="button" className="btn-close" aria-label="Close" onClick={() => setToast(null)}></button>
         </div>
       )}
 
-      {/* Month Selector */}
+      {/* Month selector */}
       <div className="mb-3">
-        <label htmlFor="monthSelect" className="form-label fw-semibold">Select Month</label>
-        <input id="monthSelect" type="month" className="form-control w-auto" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
+        <label className="form-label fw-semibold">Select Month</label>
+        <input type="month" className="form-control w-auto" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
       </div>
 
-      {/* Customers Table */}
+      {/* Customer table */}
       <div className="table-responsive">
-        <table className="table table-hover table-bordered align-middle mb-0 table-striped">
+        <table className="table table-bordered table-hover align-middle">
           <thead className="table-primary">
             <tr>
               <th>Customer</th>
@@ -160,32 +150,30 @@ const ViewDeliveries = () => {
           <tbody>
             {customersThisMonth.length === 0 ? (
               <tr>
-                <td colSpan="4" className="text-center text-muted py-4">No deliveries for this month.</td>
+                <td colSpan={4} className="text-center py-4 text-muted">No deliveries this month</td>
               </tr>
-            ) : (
-              customersThisMonth.map((c) => {
-                const custDeliveries = getDeliveriesForCustomer(c._id);
-                const totalBottles = custDeliveries.reduce((sum, d) => sum + (d.bottles || 0), 0);
-                return (
-                  <tr key={c._id}>
-                    <td>{c.name}</td>
-                    <td>{custDeliveries.length}</td>
-                    <td>{totalBottles}</td>
-                    <td className="text-center">
-                      <button className="btn btn-sm btn-outline-primary me-2" onClick={() => setSelectedCustomer(c)}>View Details</button>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
+            ) : customersThisMonth.map(c => {
+              const custDeliveries = getDeliveriesForCustomer(c._id);
+              const totalBottles = custDeliveries.reduce((sum, d) => sum + (d.bottles || 0), 0);
+              return (
+                <tr key={c._id}>
+                  <td>{c.name}</td>
+                  <td>{custDeliveries.length}</td>
+                  <td>{totalBottles}</td>
+                  <td className="text-center">
+                    <button className="btn btn-sm btn-outline-primary me-2" onClick={() => setSelectedCustomer(c)}>View</button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      {/* Modal */}
+      {/* Modal: deliveries for selected customer */}
       {selectedCustomer && (
         <div className="modal show fade d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} onClick={() => setSelectedCustomer(null)}>
-          <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-dialog modal-lg modal-dialog-centered" onClick={e => e.stopPropagation()}>
             <div className="modal-content p-4">
               <h5 className="modal-title mb-3">Deliveries - {selectedCustomer.name}</h5>
               <table className="table table-bordered table-striped">
@@ -193,19 +181,33 @@ const ViewDeliveries = () => {
                   <tr>
                     <th>Date</th>
                     <th>Bottles</th>
+                    <th className="text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {getDeliveriesForCustomer(selectedCustomer._id).map((d) => (
+                  {getDeliveriesForCustomer(selectedCustomer._id).map(d => (
                     <tr key={d._id}>
-                      <td>{d.date ? new Date(d.date).toLocaleDateString() : "No Date"}</td>
-                      <td>{d.bottles ?? 0}</td>
+                      <td>{editDelivery && editDelivery._id === d._id ? <input type="date" className="form-control" value={editDelivery.date?.split("T")[0] || ""} onChange={e => setEditDelivery({ ...editDelivery, date: e.target.value })} /> : d.date ? new Date(d.date).toLocaleDateString() : "No Date"}</td>
+                      <td>{editDelivery && editDelivery._id === d._id ? <input type="number" className="form-control" value={editDelivery.bottles ?? 0} onChange={e => setEditDelivery({ ...editDelivery, bottles: Number(e.target.value) })} /> : d.bottles ?? 0}</td>
+                      <td className="text-center">
+                        {editDelivery && editDelivery._id === d._id ? (
+                          <>
+                            <button className="btn btn-sm btn-success me-2" onClick={saveEditDelivery}>Save</button>
+                            <button className="btn btn-sm btn-secondary" onClick={() => setEditDelivery(null)}>Cancel</button>
+                          </>
+                        ) : (
+                          <>
+                            <button className="btn btn-sm btn-outline-primary me-2" onClick={() => setEditDelivery(d)}>Edit</button>
+                            <button className="btn btn-sm btn-outline-danger" onClick={() => deleteDelivery(d._id)}>Delete</button>
+                          </>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
 
-              <div className="d-flex justify-content-end gap-2">
+              <div className="d-flex justify-content-end gap-2 mt-3">
                 <button className="btn btn-secondary" onClick={() => setSelectedCustomer(null)}>Close</button>
                 <button className="btn btn-success" onClick={() => downloadPDF(selectedCustomer)}>Download PDF</button>
               </div>
@@ -213,6 +215,7 @@ const ViewDeliveries = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };

@@ -134,6 +134,12 @@ const ViewDeliveries = () => {
         <input type="month" className="form-control w-auto" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
       </div>
 
+      {/* ✅ Monthly Totals */}
+      <div className="alert alert-info fw-semibold">
+        Total Deliveries: {filteredDeliveries.length} |{" "}
+        Total Bottles: {filteredDeliveries.reduce((sum, d) => sum + (d.bottles || 0), 0)}
+      </div>
+
       <div className="table-responsive">
         <table className="table table-bordered table-hover align-middle">
           <thead className="table-primary">

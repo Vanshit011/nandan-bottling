@@ -3,6 +3,7 @@ import axios from "axios";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import "bootstrap/dist/css/bootstrap.min.css";
+import API_BASE_URL from "../config";
 
 const ViewDeliveries = () => {
   const [customers, setCustomers] = useState([]);
@@ -26,8 +27,8 @@ const ViewDeliveries = () => {
 
     try {
       const [custRes, deliveryRes] = await Promise.all([
-        axios.get(`https://api-nandan-node.onrender.com/api/customers?companyId=${companyId}`, { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get(`https://api-nandan-node.onrender.com/api/deliveries?companyId=${companyId}`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_BASE_URL}/api/customers?companyId=${companyId}`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_BASE_URL}/api/deliveries?companyId=${companyId}`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
       setCustomers(custRes.data || []);
       setDeliveries((deliveryRes.data || []).reverse());
@@ -90,7 +91,7 @@ const ViewDeliveries = () => {
     if (!window.confirm("Delete this delivery?")) return;
 
     try {
-      await axios.delete(`https://api-nandan-node.onrender.com/api/deliveries/${deliveryId}`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${API_BASE_URL}/api/deliveries/${deliveryId}`, { headers: { Authorization: `Bearer ${token}` } });
       fetchData();
       setToast({ message: "Delivery deleted successfully.", type: "success" });
     } catch (err) {
@@ -104,7 +105,7 @@ const ViewDeliveries = () => {
     if (!token) return setToast({ message: "Not authorized", type: "danger" });
 
     try {
-      await axios.put(`https://api-nandan-node.onrender.com/api/deliveries/${editDelivery._id}`, {
+      await axios.put(`${API_BASE_URL}/api/deliveries/${editDelivery._id}`, {
         customerId: editDelivery.customerId,
         date: editDelivery.date,
         bottles: editDelivery.bottles

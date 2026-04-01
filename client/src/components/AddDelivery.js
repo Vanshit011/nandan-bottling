@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
+import API_BASE_URL from "../config";
 
 const AddDelivery = () => {
   const [customers, setCustomers] = useState([]);
@@ -20,7 +21,7 @@ const AddDelivery = () => {
           return;
         }
         const res = await axios.get(
-          `https://api-nandan-node.onrender.com/api/customers?companyId=${companyId}`,
+          `${API_BASE_URL}/api/customers?companyId=${companyId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setCustomers(res.data);
@@ -51,7 +52,7 @@ const AddDelivery = () => {
     };
 
     try {
-      await axios.post("https://api-nandan-node.onrender.com/api/deliveries", payload, {
+      await axios.post(`${API_BASE_URL}/api/deliveries`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

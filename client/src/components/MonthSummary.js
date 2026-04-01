@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import API_BASE_URL from "../config";
 
 const MonthSummary = () => {
   const [summary, setSummary] = useState([]);
@@ -28,7 +29,7 @@ const MonthSummary = () => {
 
     try {
       const res = await axios.get(
-        `https://api-nandan-node.onrender.com/api/deliveries/month-on-month-summary?month=${month}&year=${year}&companyId=${companyId}`,
+        `${API_BASE_URL}/api/deliveries/month-on-month-summary?month=${month}&year=${year}&companyId=${companyId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

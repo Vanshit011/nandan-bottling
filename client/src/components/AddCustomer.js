@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import API_BASE_URL from '../config';
 
 const AddCustomer = () => {
   const [form, setForm] = useState({ name: '', phone: '', rate: '' });
@@ -34,7 +35,7 @@ const AddCustomer = () => {
 
     try {
       const res = await axios.get(
-        'https://api-nandan-node.onrender.com/api/customers',
+        `${API_BASE_URL}/api/customers`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -48,7 +49,7 @@ const AddCustomer = () => {
       }
 
       await axios.post(
-        'https://api-nandan-node.onrender.com/api/customers',
+        `${API_BASE_URL}/api/customers`,
         { ...form, phone: normalizedPhone },
         { headers: { Authorization: `Bearer ${token}` } }
       );

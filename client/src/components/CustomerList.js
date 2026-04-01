@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import API_BASE_URL from '../config';
 
 const CustomerList = () => {
   const [customers, setCustomers] = useState([]);
@@ -16,7 +17,7 @@ const CustomerList = () => {
 
   const fetchCustomers = () => {
     axios
-      .get('https://api-nandan-node.onrender.com/api/customers', config)
+      .get(`${API_BASE_URL}/api/customers`, config)
       .then((res) => setCustomers(res.data))
       .catch((err) => console.error('Fetch Error:', err));
   };
@@ -32,7 +33,7 @@ const CustomerList = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
-        await axios.delete(`https://api-nandan-node.onrender.com/api/customers/${id}`, config);
+        await axios.delete(`${API_BASE_URL}/api/customers/${id}`, config);
         triggerToast('✅ Customer Deleted Successfully!', 'success');
         fetchCustomers();
       } catch (err) {
@@ -54,7 +55,7 @@ const CustomerList = () => {
     e.preventDefault();
     try {
       await axios.put(
-        `https://api-nandan-node.onrender.com/api/customers/${editCustomer._id}`,
+        `${API_BASE_URL}/api/customers/${editCustomer._id}`,
         { ...form, phone: normalizePhone(form.phone) },
         config
       );

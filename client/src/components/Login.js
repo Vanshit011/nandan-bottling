@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -23,7 +24,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "https://api-nandan-node.onrender.com/api/admin/login",
+        `${API_BASE_URL}/api/admin/login`,
         { email, password }
       );
 

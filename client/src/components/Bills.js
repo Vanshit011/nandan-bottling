@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 
 const monthNames = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -37,7 +38,7 @@ const Bills = () => {
     const fetchCustomers = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('https://api-nandan-node.onrender.com/api/customers', {
+        const res = await axios.get(`${API_BASE_URL}/api/customers`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCustomers(res.data);
@@ -56,7 +57,7 @@ const Bills = () => {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      let url = `https://api-nandan-node.onrender.com/api/bills/monthwise?year=${filterYear}`;
+      let url = `${API_BASE_URL}/api/bills/monthwise?year=${filterYear}`;
       if (filterMonth && filterMonth !== 0) {
         url += `&month=${filterMonth}`;
       }
@@ -105,7 +106,7 @@ const Bills = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        'https://api-nandan-node.onrender.com/api/bills',
+        `${API_BASE_URL}/api/bills`,
         {
           customerId: form.customerId,
           amount: Number(form.amount),
@@ -156,7 +157,7 @@ const Bills = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `https://api-nandan-node.onrender.com/api/bills/${id}`,
+        `${API_BASE_URL}/api/bills/${id}`,
         {
           ...editForm,
           amount: Number(editForm.amount),
@@ -181,7 +182,7 @@ const Bills = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`https://api-nandan-node.onrender.com/api/bills/${id}`, {
+      await axios.delete(`${API_BASE_URL}/api/bills/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert('Bill deleted successfully');
